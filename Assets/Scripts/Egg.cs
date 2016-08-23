@@ -9,7 +9,7 @@ public class Egg : MonoBehaviour {
 	public float leftAndRightjumpSpeed;//左右jumpの速さ
 	public bool isRad;
 	private Vector2 firstPos;
-	public GameObject nextPos;  //次の目標点
+	public GameObject center;
 	// Use this for initialization
 	void Start () {
 		rigidbody2D = GetComponent<Rigidbody2D>();
@@ -37,11 +37,11 @@ public class Egg : MonoBehaviour {
 		}
 	}
 	void FixedUpdate() {
-		float range = 1.0f;
+		/*float range = 1.0f;
 		Vector2 speed = rigidbody2D.velocity;
 		if (speed.y >= -range && speed.y <= range && speed.y != 0) {
 		  Debug.Log("頂点:" + transform.position +" 速度:"+ rigidbody2D.velocity);
-		}
+		}*/
 	}
 
   //touchアクション
@@ -50,16 +50,19 @@ public class Egg : MonoBehaviour {
 		if (speed.y < -1.0f || speed.y > 1.0f) return;
 		if (speed.y >= -0.2f && speed.y <= 0.2f) {
 			Debug.Log("Nice!");
+			CompensatePosition();
 			SetVelocity();
 			StageManager.AddNextStageCount();
 		}
 		else if (speed.y >= -0.5f && speed.y <= 0.5f) {
 			Debug.Log("Good!");
+		  CompensatePosition();
 		  SetVelocity();
 		  StageManager.AddNextStageCount();
 		}
 		else if (speed.y >= -1.0f && speed.y <= 1.0f) {
 			Debug.Log("Ok!");
+		  CompensatePosition();
 		  SetVelocity();
 		  StageManager.AddNextStageCount();
 		}
@@ -101,5 +104,16 @@ public class Egg : MonoBehaviour {
     v.x = Mathf.Cos(rad) * speed;
     v.y = Mathf.Sin(rad) * speed;
     rigidbody2D.velocity = v;
+  }
+
+  //タップにより位置がずれた時の補正
+  private void CompensatePosition() {
+  	Vector2 pos = new Vector2(0, 0);
+  	if (StageManager.nowStageCount == 0)  pos = GameObject.Find("StageManager").GetComponent<CreateStage>().firstObj.transform.position;
+  	else  {
+  		pos = CreateStage.stages[StageManager.nowStageCount - 1].obj.transform.position;
+  	  Debug.Log(CreateStage.stages[StageManager.nowStageCount - 1].obj.transform.position);
+  	}
+  	center.transform.position = pos;
   }
 }
