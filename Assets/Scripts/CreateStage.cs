@@ -8,9 +8,10 @@ public class CreateStage : MonoBehaviour {
 	public class Stage {
 		public Vector2 timingPos;
 		public GameObject obj;
-		public float interval; //次のステージにかかる時間
-		public float nextRad; //次のステージに対する発射角度
-		public float nextSpeed; //次のステージに対する初速度
+		public float interval = 0; //次のステージにかかる時間
+		public float nextRad = 0; //次のステージに対する発射角度
+		public float nextSpeed = 0; //次のステージに対する初速度
+		public float nextGravity = 0; //次の重力
 	}
 	public GameObject firstObj; //最初のオブジェクト
 	public static List<Stage> stages = new List<Stage>();
@@ -38,19 +39,45 @@ public class CreateStage : MonoBehaviour {
 			GameObject temp ;
 			if (isRight) temp = CreateObj(timingPointRight);
 			else temp = CreateObj(timingPointLeft);
-			Stage stage = new Stage();
-			stage.obj = temp;
-			stages.Add(stage); //ステージに追加
-			stages[stages.Count - 1].interval = GetNextInterval();//時間の設定
-			SetParameter(GetNextStageX(), stages[stages.Count - 1].interval);
-			stages[stages.Count - 1].obj.transform.position = stages[stages.Count - 1].timingPos; //ステージの位置を画面に反映
-			stages[stages.Count - 1].obj.transform.SetParent(GameObject.Find("Tree").transform); //親の設定
+			
+			//ステージのパラメータ設定
+		  if (StageManager.isGravityVersion)  CreateStageByGravity(temp);
+		  else  CreateStageByY(temp);
 		}
 	}
 	
 	// Update is called once per frame
 	void Update () {
 	
+	}
+  
+  //ステージの生成(y軸可変ver)
+	private void CreateStageByY(GameObject temp) {
+		Stage stage = new Stage();
+		stage.obj = temp;
+		stages.Add(stage); //ステージに追加
+		stages[stages.Count - 1].interval = GetNextInterval();//時間の設定
+
+		SetParameter(GetNextX(), stages[stages.Count - 1].interval);
+		stages[stages.Count - 1].obj.transform.position = stages[stages.Count - 1].timingPos; //ステージの位置を画面に反映
+		stages[stages.Count - 1].obj.transform.SetParent(GameObject.Find("Tree").transform); //親の設定
+	}
+	private void CreateStageByGravity(GameObject temp) {
+		Stage stage = new Stage();
+		stage.obj = temp;
+		stages.Add(stage); //ステージに追加
+		stages[stages.Count - 1].interval = GetNextInterval();//時間の設定
+    //次のステージの位置の設定
+		
+		Vector2 pos = firstObj.transform.position; //今のステージ位置
+  	if (stages.Count != 1)   pos = stages[stages.Count - 2].obj.transform.position;
+		
+		pos.y += GetNextY();
+		pos.x = GetNextX();
+		//Debug.Log(pos.y);
+		SetParameter(pos, stages[stages.Count - 1].interval);
+		stages[stages.Count - 1].obj.transform.position = stages[stages.Count - 1].timingPos; //ステージの位置を画面に反映
+		stages[stages.Count - 1].obj.transform.SetParent(GameObject.Find("Tree").transform); //親の設定
 	}
 
 	//オブジェクト生成
@@ -65,8 +92,18 @@ public class CreateStage : MonoBehaviour {
 		return musicIsRightPos[musiceIsRightPosCount++];
 	}
 
+	//次のステージのy座標を設定
+	///今のステージからどれくらい高いかを返り値として返す
+	private float GetNextY() {
+		float y = 0;
+		if (stages[stages.Count - 1].interval == 1.0f)  y = 4;
+		else if (stages[stages.Count - 1].interval == 0.5f)  y = 2;
+		else if (stages[stages.Count - 1].interval == 0.25f) y = 1;
+		return y;
+	}
+
 	//次のステージのx座標を設定
-	private float GetNextStageX() {
+	private float GetNextX() {
 		if (isRight) return 3; //左側に配置の際は,x座標3
 		return 0;
 	}
@@ -75,10 +112,11 @@ public class CreateStage : MonoBehaviour {
 		if (musicInterval.Length == 0 || isRandom) return 1.0f;
 
 		float time = 0;
-		Debug.Log(musicIntervalCount);
+		//Debug.Log(musicIntervalCount);
     switch (musicInterval[musicIntervalCount++]) {
     	case 1: time = 1.0f; break;
     	case 2: time = 0.5f; break;
+    	case 3: time = 0.25f; break;
     }
 
     return time;
@@ -105,5 +143,26 @@ public class CreateStage : MonoBehaviour {
   	stages[stages.Count - 1].nextRad = rad;
   	stages[stages.Count - 1].nextSpeed = v0;
   	stages[stages.Count - 1].timingPos = new Vector2(end_x, y);
+  }
+
+  //パラメータ設定
+  //既知パラメータ : 頂点のx,y座標, 頂点までにかかる時間
+  //未知パラメータ : 重力, 発射角度, 初速度
+  private void SetParameter(Vector2 end, float time) {
+  	Vector2 start = firstObj.transform.position; //スタート位置
+  	if (stages.Count != 1) start = stages[stages.Count - 2].timingPos; //ひとつ前のステージがスタート位置
+  	
+  	float gravity = 2 * (end.y - start.y) / (time * time);  //重力
+  	//発射角度
+  	float rad = (float)Mathf.Atan((gravity * time * time / (end.x - start.x)));
+  	//初速度
+  	float v0 = gravity * time / Mathf.Sin(rad);
+    Debug.Log((stages.Count - 1) + " x:"+ end.x +" y:"+ end.y +" g:" + gravity + " rad:"+ rad +" deg:" + rad * Mathf.Rad2Deg + " v0:" + v0);
+    
+  	//値の格納
+  	stages[stages.Count - 1].nextRad = rad;
+  	stages[stages.Count - 1].nextSpeed = v0;
+  	stages[stages.Count - 1].timingPos = end;
+  	stages[stages.Count - 1].nextGravity = gravity;
   }
 }
