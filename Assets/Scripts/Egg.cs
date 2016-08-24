@@ -50,21 +50,21 @@ public class Egg : MonoBehaviour {
 		if (speed.y < -1.0f + timingVy() || speed.y > 1.0f - timingVy()) return;
 		if (speed.y >= -0.2f + timingVy() && speed.y <= 0.2f - timingVy()) {
 			Debug.Log("Nice!");
-			CompensatePosition();
+			if (!StageManager.isGravityVersion)  CompensatePosition();
 			SetVelocity();
 			GameObject.Find("se").GetComponent<SE>().SEPlay();
 			StageManager.AddNextStageCount();
 		}
 		else if (speed.y >= -0.5f + timingVy() && speed.y <= 0.5f - timingVy()) {
 			Debug.Log("Good!");
-		  CompensatePosition();
+		  if (!StageManager.isGravityVersion)  CompensatePosition();
 		  SetVelocity();
 		  GameObject.Find("se").GetComponent<SE>().SEPlay();
 			StageManager.AddNextStageCount();
 		}
 		else if (speed.y >= -1.0f + timingVy() && speed.y <= 1.0f - timingVy()) {
 			Debug.Log("Ok!");
-		  CompensatePosition();
+		  if (!StageManager.isGravityVersion)  CompensatePosition();
 		  SetVelocity();
 		  GameObject.Find("se").GetComponent<SE>().SEPlay();
 			StageManager.AddNextStageCount();
@@ -89,11 +89,14 @@ public class Egg : MonoBehaviour {
 		float rad = CreateStage.stages[StageManager.nowStageCount].nextRad;
 		float speed = CreateStage.stages[StageManager.nowStageCount].nextSpeed;
 		float gravity = CreateStage.stages[StageManager.nowStageCount].nextGravity;
-		if (StageManager.isGravityVersion)  SetVelocity(rad, speed, gravity);
+		Vector2 pos = CreateStage.stages[StageManager.nowStageCount].nextPos;
+		float interval = CreateStage.stages[StageManager.nowStageCount].interval;
+		//Debug.Log("pos:" + pos);
+		if (StageManager.isGravityVersion)  SetVelocity(pos, interval);
 		else  SetVelocity(rad, speed);
 	}
 	/// 移動量を設定.rad : 角度(radian)
-	//x,y平面の移動
+	//y軸可変移動
   private void SetVelocity(float rad, float speed) {
     Vector2 v;
     v.x = Mathf.Cos(rad) * speed;
@@ -101,6 +104,7 @@ public class Egg : MonoBehaviour {
     rigidbody2D.velocity = v;
     //Debug.Log("角度:"+ rad + "  初速度:" + speed);
   }
+  //重力可変移動
   private void SetVelocity(float rad, float speed, float gravity) {
     Physics2D.gravity = new Vector2(0, -gravity);
     Vector2 v;
@@ -118,6 +122,23 @@ public class Egg : MonoBehaviour {
   	  Debug.Log(CreateStage.stages[StageManager.nowStageCount - 1].obj.transform.position);
   	}
   	center.transform.position = pos;
+  }
+
+  //タマゴがタイミングタップされた後その都度計算して移動
+  private void SetVelocity(Vector2 end, float time) {
+
+  	//Vector2 start = new Vector2(0, 0);
+  	Vector2 start = this.transform.position;
+  	//if (CreateStage.stages.Count == 1) start = GameObject.Find("StageManager").GetComponent<CreateStage>().firstObj.transform.position; //スタート位置
+  	//if (CreateStage.stages.Count != 1) start = CreateStage.stages[CreateStage.stages.Count - 1].nextPos; //ひとつ前のステージがスタート位置
+  	
+  	float gravity = 2 * (end.y - start.y - timingVy() * time) / (time * time);  //重力
+  	//発射角度
+  	float rad = (float)Mathf.Atan((timingVy() * time + gravity * time * time) / (end.x - start.x));
+  	//初速度
+  	float v0 = (timingVy() + gravity * time) / Mathf.Sin(rad);
+
+  	SetVelocity(rad, v0, gravity);
   }
 
   //ベストタイミング時のy軸の速度
