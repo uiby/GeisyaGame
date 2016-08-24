@@ -8,6 +8,8 @@ public class TimeTest : MonoBehaviour {
 	private static bool isBegin = false;
 	// Use this for initialization
 	void Start () {
+		time = 0;
+		isBegin = false;
 		text = this.GetComponent<Text>();
 	}
 	

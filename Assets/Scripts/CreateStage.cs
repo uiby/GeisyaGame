@@ -14,11 +14,12 @@ public class CreateStage : MonoBehaviour {
 		public float nextGravity = 0; //次の重力
 	}
 	public GameObject firstObj; //最初のオブジェクト
-	public static List<Stage> stages = new List<Stage>();
+	public static List<Stage> stages;
 	private GameObject timingPointRight;
 	private GameObject timingPointLeft;
 	private bool isRight = true;
 	public bool isRandom;
+	public bool isColorChange;
 	public int[] musicInterval; //間隔
 	public bool[] musicIsRightPos; //位置 右ならtrue, 左ならfalse
 	public float vy; //次のステージにタマゴが通る時のy軸の速度. 0なら頂点
@@ -29,6 +30,7 @@ public class CreateStage : MonoBehaviour {
 	///**********************///
 
 	void Start () {
+		stages = new List<Stage>();
 		timingPointRight = (GameObject)Resources.Load("TimingPointRight");
 		timingPointLeft = (GameObject)Resources.Load("TimingPointLeft");
 
@@ -44,6 +46,8 @@ public class CreateStage : MonoBehaviour {
 			//ステージのパラメータ設定
 		  if (StageManager.isGravityVersion)  CreateStageByGravity(temp);
 		  else  CreateStageByY(temp);
+
+		  if (isColorChange)  SetColor();//色指定
 		}
 	}
 	
@@ -98,8 +102,8 @@ public class CreateStage : MonoBehaviour {
 	private float GetNextY() {
 		float y = 0;
 		if (stages[stages.Count - 1].interval == 1.0f)  y = 4;
-		else if (stages[stages.Count - 1].interval == 0.5f)  y = 2;
-		else if (stages[stages.Count - 1].interval == 0.25f) y = 1;
+		else if (stages[stages.Count - 1].interval == 0.5f)  y = 3;
+		else if (stages[stages.Count - 1].interval == 0.25f) y = 2;
 		return y;
 	}
 
@@ -110,9 +114,16 @@ public class CreateStage : MonoBehaviour {
 	}
 	//次のステージまでにかかる時間を設定
 	private float GetNextInterval() {
-		if (musicInterval.Length == 0 || isRandom) return 1.0f;
-
 		float time = 0;
+		if (musicInterval.Length == 0 || isRandom) {
+			switch (Random.Range(0, 3)) {
+				case 0: time = 1.0f; break;
+				case 1: time = 0.5f; break;
+				case 2: time = 0.25f; break;
+			}
+			return time;
+		}
+
 		//Debug.Log(musicIntervalCount);
     switch (musicInterval[musicIntervalCount++]) {
     	case 1: time = 1.0f; break;
@@ -165,5 +176,24 @@ public class CreateStage : MonoBehaviour {
   	stages[stages.Count - 1].nextSpeed = v0;
   	stages[stages.Count - 1].nextPos = end;
   	stages[stages.Count - 1].nextGravity = gravity;
+  }
+
+  //色指定
+  private void SetColor() {
+  	if (!IsFirstBard()) { 
+    	if (stages[stages.Count - 1].interval == 0.5f)  stages[stages.Count - 2].obj.transform.FindChild("Bard").GetComponent<Bard>().SetColor(0, 255, 65);
+	  	else if (stages[stages.Count - 1].interval == 0.25f) stages[stages.Count - 2].obj.transform.FindChild("Bard").GetComponent<Bard>().SetColor(252, 24, 255);
+	  }
+  }
+
+  public static void Init() {
+  	for(int i = 0; i < stages.Count; i++) {
+      Destroy(stages[i].obj.gameObject);
+    }
+  }
+  private bool IsFirstBard() {
+  	if (stages.Count == 1)  return true;
+
+  	return false;
   }
 }

@@ -18,23 +18,7 @@ public class Egg : MonoBehaviour {
 	}
 	
 	void Update () {
-		TouchInfo info = TouchUtil.GetTouch();
-		switch(info) {
-			case TouchInfo.Began :
-			  TouchAction();
-			  //TouchUtil.SetStartPosition();
-			  break;
-			case TouchInfo.Ended :
-			  //TouchUtil.SetEndPosition();
-			  //FlickAction();
-			  break;
-		}
-		if (Input.GetKeyDown(KeyCode.Q)) {
-			rigidbody2D.velocity = Vector2.zero;
-			transform.position = firstPos;
-			StageManager.nowStageCount = 0;
-			TimeTest.FinishTime();
-		}
+		
 	}
 	void FixedUpdate() {
 		/*float range = 1.0f;
@@ -44,34 +28,33 @@ public class Egg : MonoBehaviour {
 		}*/
 	}
 
-  //touchアクション
-	private void TouchAction() {
-		Vector2 speed = rigidbody2D.velocity;
-		if (speed.y < -1.0f + timingVy() || speed.y > 1.0f - timingVy()) return;
-		if (speed.y >= -0.2f + timingVy() && speed.y <= 0.2f - timingVy()) {
-			Debug.Log("Nice!");
-			if (!StageManager.isGravityVersion)  CompensatePosition();
-			SetVelocity();
-			GameObject.Find("se").GetComponent<SE>().SEPlay();
-			StageManager.AddNextStageCount();
-		}
-		else if (speed.y >= -0.5f + timingVy() && speed.y <= 0.5f - timingVy()) {
-			Debug.Log("Good!");
-		  if (!StageManager.isGravityVersion)  CompensatePosition();
-		  SetVelocity();
-		  GameObject.Find("se").GetComponent<SE>().SEPlay();
-			StageManager.AddNextStageCount();
-		}
-		else if (speed.y >= -1.0f + timingVy() && speed.y <= 1.0f - timingVy()) {
-			Debug.Log("Ok!");
-		  if (!StageManager.isGravityVersion)  CompensatePosition();
-		  SetVelocity();
-		  GameObject.Find("se").GetComponent<SE>().SEPlay();
-			StageManager.AddNextStageCount();
-		}
+	//初期位置に戻す
+	public void initPos() {
+		rigidbody2D.velocity = Vector2.zero;
+		transform.position = firstPos;
+		StageManager.nowStageCount = 0;
 		TimeTest.FinishTime();
-		TimeTest.StartTime();
-		//SetVelocity(new Vector2(0, 4), jumpSpeed);
+	}
+
+  //touchアクション 成功だとtrue
+	public bool TouchAction() {
+		Vector2 speed = rigidbody2D.velocity;
+		float timingVy = TimingVy();
+		if (speed.y < -1.0f + timingVy || speed.y > 1.0f - timingVy) return false;
+		
+		if (speed.y >= -0.2f + timingVy && speed.y <= 0.2f - timingVy) {
+			Debug.Log("Nice!");
+		}
+		else if (speed.y >= -0.5f + timingVy && speed.y <= 0.5f - timingVy) {
+			Debug.Log("Good!");
+		}
+		else if (speed.y >= -1.0f + timingVy && speed.y <= 1.0f - timingVy) {
+			Debug.Log("Ok!");
+		}
+		
+		if (!StageManager.isGravityVersion)  CompensatePosition();
+
+		return true;
 	}
 	//フリック操作によるアクション
 	private void FlickAction() {
@@ -85,7 +68,7 @@ public class Egg : MonoBehaviour {
 		}
 	}
 
-	private void SetVelocity() {
+	public void SetVelocity() {
 		float rad = CreateStage.stages[StageManager.nowStageCount].nextRad;
 		float speed = CreateStage.stages[StageManager.nowStageCount].nextSpeed;
 		float gravity = CreateStage.stages[StageManager.nowStageCount].nextGravity;
@@ -132,17 +115,17 @@ public class Egg : MonoBehaviour {
   	//if (CreateStage.stages.Count == 1) start = GameObject.Find("StageManager").GetComponent<CreateStage>().firstObj.transform.position; //スタート位置
   	//if (CreateStage.stages.Count != 1) start = CreateStage.stages[CreateStage.stages.Count - 1].nextPos; //ひとつ前のステージがスタート位置
   	
-  	float gravity = 2 * (end.y - start.y - timingVy() * time) / (time * time);  //重力
+  	float gravity = 2 * (end.y - start.y - TimingVy() * time) / (time * time);  //重力
   	//発射角度
-  	float rad = (float)Mathf.Atan((timingVy() * time + gravity * time * time) / (end.x - start.x));
+  	float rad = (float)Mathf.Atan((TimingVy() * time + gravity * time * time) / (end.x - start.x));
   	//初速度
-  	float v0 = (timingVy() + gravity * time) / Mathf.Sin(rad);
+  	float v0 = (TimingVy() + gravity * time) / Mathf.Sin(rad);
 
   	SetVelocity(rad, v0, gravity);
   }
 
   //ベストタイミング時のy軸の速度
-  private float timingVy() {
+  private float TimingVy() {
   	return GameObject.Find("StageManager").GetComponent<CreateStage>().vy;
   }
 }
