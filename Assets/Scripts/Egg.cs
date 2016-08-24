@@ -47,24 +47,27 @@ public class Egg : MonoBehaviour {
   //touchアクション
 	private void TouchAction() {
 		Vector2 speed = rigidbody2D.velocity;
-		if (speed.y < -1.0f || speed.y > 1.0f) return;
-		if (speed.y >= -0.2f && speed.y <= 0.2f) {
+		if (speed.y < -1.0f + timingVy() || speed.y > 1.0f - timingVy()) return;
+		if (speed.y >= -0.2f + timingVy() && speed.y <= 0.2f - timingVy()) {
 			Debug.Log("Nice!");
 			CompensatePosition();
 			SetVelocity();
+			GameObject.Find("se").GetComponent<SE>().SEPlay();
 			StageManager.AddNextStageCount();
 		}
-		else if (speed.y >= -0.5f && speed.y <= 0.5f) {
+		else if (speed.y >= -0.5f + timingVy() && speed.y <= 0.5f - timingVy()) {
 			Debug.Log("Good!");
 		  CompensatePosition();
 		  SetVelocity();
-		  StageManager.AddNextStageCount();
+		  GameObject.Find("se").GetComponent<SE>().SEPlay();
+			StageManager.AddNextStageCount();
 		}
-		else if (speed.y >= -1.0f && speed.y <= 1.0f) {
+		else if (speed.y >= -1.0f + timingVy() && speed.y <= 1.0f - timingVy()) {
 			Debug.Log("Ok!");
 		  CompensatePosition();
 		  SetVelocity();
-		  StageManager.AddNextStageCount();
+		  GameObject.Find("se").GetComponent<SE>().SEPlay();
+			StageManager.AddNextStageCount();
 		}
 		TimeTest.FinishTime();
 		TimeTest.StartTime();
@@ -115,5 +118,10 @@ public class Egg : MonoBehaviour {
   	  Debug.Log(CreateStage.stages[StageManager.nowStageCount - 1].obj.transform.position);
   	}
   	center.transform.position = pos;
+  }
+
+  //ベストタイミング時のy軸の速度
+  private float timingVy() {
+  	return GameObject.Find("StageManager").GetComponent<CreateStage>().vy;
   }
 }

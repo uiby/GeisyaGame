@@ -21,6 +21,7 @@ public class CreateStage : MonoBehaviour {
 	public bool isRandom;
 	public int[] musicInterval; //間隔
 	public bool[] musicIsRightPos; //位置 右ならtrue, 左ならfalse
+	public float vy; //次のステージにタマゴが通る時のy軸の速度. 0なら頂点
 
   ///後でちゃんとしたコードに書き直す///
 	private int musicIntervalCount = 0;
@@ -132,11 +133,11 @@ public class CreateStage : MonoBehaviour {
   	float gravity = Mathf.Abs(Physics2D.gravity.y);  //重力
 
   	//頂点のy座標
-  	float y = start.y + gravity * time * time / 2.0f;
+  	float y = start.y + vy * time + gravity * time * time / 2.0f;
   	//発射角度
-  	float rad = (float)Mathf.Atan((gravity * time * time / (end_x - start.x)));
+  	float rad = (float)Mathf.Atan((vy * time + gravity * time * time) / (end_x - start.x));
   	//初速度
-  	float v0 = gravity * time / Mathf.Sin(rad);
+  	float v0 = (vy + gravity * time) / Mathf.Sin(rad);
   	Debug.Log((stages.Count - 1) +" x:"+ end_x +" y:" + y + " rad:"+ rad +" deg:" + rad * Mathf.Rad2Deg + " v0:" + v0);
 
   	//値の格納
@@ -152,11 +153,11 @@ public class CreateStage : MonoBehaviour {
   	Vector2 start = firstObj.transform.position; //スタート位置
   	if (stages.Count != 1) start = stages[stages.Count - 2].nextPos; //ひとつ前のステージがスタート位置
   	
-  	float gravity = 2 * (end.y - start.y) / (time * time);  //重力
+  	float gravity = 2 * (end.y - start.y - vy * time) / (time * time);  //重力
   	//発射角度
-  	float rad = (float)Mathf.Atan((gravity * time * time / (end.x - start.x)));
+  	float rad = (float)Mathf.Atan((vy * time + gravity * time * time) / (end.x - start.x));
   	//初速度
-  	float v0 = gravity * time / Mathf.Sin(rad);
+  	float v0 = (vy + gravity * time) / Mathf.Sin(rad);
     Debug.Log((stages.Count - 1) + " x:"+ end.x +" y:"+ end.y +" g:" + gravity + " rad:"+ rad +" deg:" + rad * Mathf.Rad2Deg + " v0:" + v0);
     
   	//値の格納
