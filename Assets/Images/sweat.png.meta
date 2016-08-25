@@ -1,0 +1,119 @@
+fileFormatVersion: 2
+guid: 2b08a87eea7b62544b28b384aba31a0d
+timeCreated: 1472106623
+licenseType: Free
+TextureImporter:
+  fileIDToRecycleName:
+    21300000: sweat_0
+    21300002: sweat_1
+    21300004: sweat_2
+  serializedVersion: 2
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 1
+    linearTexture: 0
+    correctGamma: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 0
+  cubemapConvolution: 0
+  cubemapConvolutionSteps: 7
+  cubemapConvolutionExponent: 1.5
+  seamlessCubemap: 0
+  textureFormat: -1
+  maxTextureSize: 2048
+  textureSettings:
+    filterMode: -1
+    aniso: 16
+    mipBias: -1
+    wrapMode: 1
+  nPOTScale: 0
+  lightmap: 0
+  rGBM: 0
+  compressionQuality: 50
+  allowsAlphaSplitting: 0
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spritePixelsToUnits: 100
+  alphaIsTransparency: 1
+  textureType: 8
+  buildTargetSettings: []
+  spriteSheet:
+    sprites:
+    - name: sweat_0
+      rect:
+        serializedVersion: 2
+        x: 112
+        y: 87
+        width: 81
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -2.5, y: 24}
+        - {x: -12.5, y: 22}
+        - {x: -28.5, y: 13}
+        - {x: -40.5, y: -15}
+        - {x: -40.5, y: -24}
+        - {x: 32.5, y: -24}
+        - {x: 40.5, y: -10}
+        - {x: 40.5, y: 24}
+    - name: sweat_1
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 68
+        height: 76
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: 28, y: 0}
+        - {x: 34, y: 8}
+        - {x: 34, y: 37}
+        - {x: 30, y: 38}
+        - {x: -16, y: 38}
+        - {x: -34, y: 24}
+        - {x: -34, y: -38}
+        - {x: -23, y: -38}
+        - {x: -19, y: -36}
+        - {x: 5, y: -19}
+        - {x: 12, y: -13}
+        - {x: 22, y: -5}
+    - name: sweat_2
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 0
+        width: 79
+        height: 50
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -5.5, y: 25}
+        - {x: -39.5, y: 1}
+        - {x: -39.5, y: -25}
+        - {x: 29.5, y: -25}
+        - {x: 39.5, y: -10}
+        - {x: 39.5, y: 25}
+    outline: []
+  spritePackingTag: 
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

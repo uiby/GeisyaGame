@@ -10,6 +10,7 @@ public class Egg : MonoBehaviour {
 	public bool isRad;
 	private Vector2 firstPos;
 	public GameObject center;
+	public float hp;
 	// Use this for initialization
 	void Start () {
 		rigidbody2D = GetComponent<Rigidbody2D>();
@@ -21,11 +22,10 @@ public class Egg : MonoBehaviour {
 		
 	}
 	void FixedUpdate() {
-		/*float range = 1.0f;
-		Vector2 speed = rigidbody2D.velocity;
-		if (speed.y >= -range && speed.y <= range && speed.y != 0) {
-		  Debug.Log("頂点:" + transform.position +" 速度:"+ rigidbody2D.velocity);
-		}*/
+		string result = TouchAction();
+		if (result != "None") {
+			Debug.Log(result +": vec:"+ rigidbody2D.velocity);
+		}
 	}
 
 	//初期位置に戻す
@@ -37,7 +37,7 @@ public class Egg : MonoBehaviour {
 	}
 
   //touchアクション 成功だとtrue
-	public bool TouchAction() {
+	/*public bool TouchAction() {
 		Vector2 speed = rigidbody2D.velocity;
 		float timingVy = TimingVy();
 		if (speed.y < -1.0f + timingVy || speed.y > 1.0f - timingVy) return false;
@@ -51,19 +51,42 @@ public class Egg : MonoBehaviour {
 		else if (speed.y >= -1.0f + timingVy && speed.y <= 1.0f - timingVy) {
 			Debug.Log("Ok!");
 		}
-		
-		if (!StageManager.isGravityVersion)  CompensatePosition();
 
 		return true;
+	}*/
+	//touchアクション
+	//返り値 : Nice ... 誤差±0.1
+	//        Early(早い) ... 誤差-0.5
+	//        Late(遅い) ... 誤差+0.5
+	//        None(論外) ... ±0.5より大きい
+	public string TouchAction() {
+		if (StageManager.IsFirstStageNumber()) return "Nice";
+		Vector2 speed = rigidbody2D.velocity;
+		float timingVy = TimingVy();
+		//if (speed.y < -0.5f + timingVy || speed.y > 0.5f - timingVy) return "None";
+		
+		if (speed.y >= - 0.4f + timingVy && speed.y <= 0.4f + timingVy) {
+			Debug.Log("Nice");
+			return "Nice";
+		}
+		else if (speed.y >= 0.4f + timingVy && speed.y < 1.8f + timingVy) {
+			Debug.Log("Early");
+			return "Early";
+		}
+		else if (speed.y >= - 1.8f + timingVy && speed.y < - 0.4f + timingVy) {
+			Debug.Log("Late");
+			return "Late";
+		}
+		else  return "None";
+
+
 	}
 	//フリック操作によるアクション
 	private void FlickAction() {
 		switch (TouchUtil.GetDirection()) {
 			case FlickInfo.RightUp : //右 
-			  SetVelocity (90 - jumpDiff, leftAndRightjumpSpeed);
 			break;
 			case FlickInfo.LeftUp :  //左
-			  SetVelocity (90 + jumpDiff, leftAndRightjumpSpeed);
 			  break;
 		}
 	}
@@ -75,19 +98,19 @@ public class Egg : MonoBehaviour {
 		Vector2 pos = CreateStage.stages[StageManager.nowStageCount].nextPos;
 		float interval = CreateStage.stages[StageManager.nowStageCount].interval;
 		//Debug.Log("pos:" + pos);
-		if (StageManager.isGravityVersion)  SetVelocity(pos, interval);
-		else  SetVelocity(rad, speed);
+		SetVelocity(pos, interval);
 	}
-	/// 移動量を設定.rad : 角度(radian)
-	//y軸可変移動
-  private void SetVelocity(float rad, float speed) {
-    Vector2 v;
-    v.x = Mathf.Cos(rad) * speed;
-    v.y = Mathf.Sin(rad) * speed;
-    rigidbody2D.velocity = v;
-    //Debug.Log("角度:"+ rad + "  初速度:" + speed);
-  }
-  //重力可変移動
+	//移動
+	// correction : 補正値
+	public void SetVelocity(float correction) {
+		Vector2 pos = CreateStage.stages[StageManager.nowStageCount].nextPos;
+		pos.x += correction;
+		CreateStage.stages[StageManager.nowStageCount].nextPos = pos;
+		float interval = CreateStage.stages[StageManager.nowStageCount].interval;
+		SetVelocity(pos, interval);
+	}
+	
+	//重力可変移動
   private void SetVelocity(float rad, float speed, float gravity) {
     Physics2D.gravity = new Vector2(0, -gravity);
     Vector2 v;
@@ -101,8 +124,8 @@ public class Egg : MonoBehaviour {
   	Vector2 pos = new Vector2(0, 0);
   	if (StageManager.nowStageCount == 0)  pos = GameObject.Find("StageManager").GetComponent<CreateStage>().firstObj.transform.position;
   	else  {
-  		pos = CreateStage.stages[StageManager.nowStageCount - 1].obj.transform.position;
-  	  Debug.Log(CreateStage.stages[StageManager.nowStageCount - 1].obj.transform.position);
+  		pos = CreateStage.stages[StageManager.nowStageCount - 1].bard.transform.position;
+  	  Debug.Log(CreateStage.stages[StageManager.nowStageCount - 1].bard.transform.position);
   	}
   	center.transform.position = pos;
   }

@@ -38,7 +38,7 @@ public class StageManager : MonoBehaviour {
 	public static int PrevStageNumber() {
 		return nowStageCount - 1;
 	}
-	public static bool isFirstStageNumber() {
+	public static bool IsFirstStageNumber() {
 		if (nowStageCount == 0)  return true;
 
 		return false;
