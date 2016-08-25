@@ -32,4 +32,8 @@ public class TimeTest : MonoBehaviour {
   	time = 0;
   }
 
+  public static float GetCurrentTime() {
+  	return time;
+  }
+
 }

@@ -22,10 +22,10 @@ public class Egg : MonoBehaviour {
 		
 	}
 	void FixedUpdate() {
-		string result = TouchAction();
+		/*string result = TouchAction();
 		if (result != "None") {
 			Debug.Log(result +": vec:"+ rigidbody2D.velocity);
-		}
+		}*/
 	}
 
 	//初期位置に戻す
@@ -62,18 +62,19 @@ public class Egg : MonoBehaviour {
 	public string TouchAction() {
 		if (StageManager.IsFirstStageNumber()) return "Nice";
 		Vector2 speed = rigidbody2D.velocity;
-		float timingVy = TimingVy();
-		//if (speed.y < -0.5f + timingVy || speed.y > 0.5f - timingVy) return "None";
+		float idealTime = IdealTime();
+		float currentTime = TimeTest.GetCurrentTime();
+		//if (currentTime < -0.5f + idealTime || currentTime > 0.5f - idealTime) return "None";
 		
-		if (speed.y >= - 0.4f + timingVy && speed.y <= 0.4f + timingVy) {
+		if (currentTime >= - 0.2f + idealTime && currentTime <= 0.2f + idealTime) {
 			Debug.Log("Nice");
 			return "Nice";
 		}
-		else if (speed.y >= 0.4f + timingVy && speed.y < 1.8f + timingVy) {
+		else if (currentTime >= 0.2f + idealTime && currentTime < 0.8f + idealTime) {
 			Debug.Log("Early");
 			return "Early";
 		}
-		else if (speed.y >= - 1.8f + timingVy && speed.y < - 0.4f + timingVy) {
+		else if (currentTime >= - 0.8f + idealTime && currentTime < - 0.2f + idealTime) {
 			Debug.Log("Late");
 			return "Late";
 		}
@@ -112,6 +113,7 @@ public class Egg : MonoBehaviour {
 	
 	//重力可変移動
   private void SetVelocity(float rad, float speed, float gravity) {
+  	//Debug.Log(" g:" + gravity + " rad:"+ rad +" deg:" + rad * Mathf.Rad2Deg + " v0:" + speed);
     Physics2D.gravity = new Vector2(0, -gravity);
     Vector2 v;
     v.x = Mathf.Cos(rad) * speed;
@@ -138,17 +140,17 @@ public class Egg : MonoBehaviour {
   	//if (CreateStage.stages.Count == 1) start = GameObject.Find("StageManager").GetComponent<CreateStage>().firstObj.transform.position; //スタート位置
   	//if (CreateStage.stages.Count != 1) start = CreateStage.stages[CreateStage.stages.Count - 1].nextPos; //ひとつ前のステージがスタート位置
   	
-  	float gravity = 2 * (end.y - start.y - TimingVy() * time) / (time * time);  //重力
+  	float gravity = 9.81f;
   	//発射角度
-  	float rad = (float)Mathf.Atan((TimingVy() * time + gravity * time * time) / (end.x - start.x));
+  	float rad = (float)Mathf.Atan((end.y - start.y + (gravity * time * time / 2)) / (end.x - start.x));
   	//初速度
-  	float v0 = (TimingVy() + gravity * time) / Mathf.Sin(rad);
+  	float v0 = (end.x - start.x) / (Mathf.Cos(rad) * time);
 
   	SetVelocity(rad, v0, gravity);
   }
 
-  //ベストタイミング時のy軸の速度
-  private float TimingVy() {
-  	return GameObject.Find("StageManager").GetComponent<CreateStage>().vy;
+  //ベストタイミング時の経過時間
+  private float IdealTime() {
+  	return CreateStage.stages[StageManager.nowStageCount].interval;
   }
 }

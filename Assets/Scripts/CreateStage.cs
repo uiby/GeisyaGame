@@ -102,8 +102,8 @@ public class CreateStage : MonoBehaviour {
 	private float GetNextY() {
 		float y = 0;
 		if (stages[stages.Count - 1].interval == 1.0f)  y = 4;
-		else if (stages[stages.Count - 1].interval == 0.5f)  y = 3;
-		else if (stages[stages.Count - 1].interval == 0.25f) y = 2;
+		else if (stages[stages.Count - 1].interval == 0.5f)  y = 4;
+		else if (stages[stages.Count - 1].interval == 0.25f) y = 4;
 		return y;
 	}
 
@@ -141,11 +141,15 @@ public class CreateStage : MonoBehaviour {
   	Vector2 start = firstObj.transform.position; //スタート位置
   	if (stages.Count != 1) start = stages[stages.Count - 2].nextPos; //ひとつ前のステージがスタート位置
   	
-  	float gravity = 2 * (end.y - start.y - vy * time) / (time * time);  //重力
+  	//float gravity = 2 * (end.y - start.y - vy * time) / (time * time);  //重力
+  	float gravity = 9.81f;
   	//発射角度
-  	float rad = (float)Mathf.Atan((vy * time + gravity * time * time) / (end.x - start.x));
+  	//float rad = (float)Mathf.Atan((vy * time + gravity * time * time) / (end.x - start.x));
+  	float rad = (float)Mathf.Atan((end.y - start.y + (gravity * time * time / 2)) / (end.x - start.x));
   	//初速度
-  	float v0 = (vy + gravity * time) / Mathf.Sin(rad);
+  	//float v0 = (vy + gravity * time) / Mathf.Sin(rad);
+   	float v0 = (end.x - start.x) / (Mathf.Cos(rad) * time);
+
     Debug.Log((stages.Count - 1) + " x:"+ end.x +" y:"+ end.y +" g:" + gravity + " rad:"+ rad +" deg:" + rad * Mathf.Rad2Deg + " v0:" + v0);
     
   	//値の格納
