@@ -11,6 +11,8 @@ public class Egg : MonoBehaviour {
 	private Vector2 firstPos;
 	public GameObject center;
 	public float hp;
+	private string test;
+	private string result;
 	// Use this for initialization
 	void Start () {
 		rigidbody2D = GetComponent<Rigidbody2D>();
@@ -19,13 +21,14 @@ public class Egg : MonoBehaviour {
 	}
 	
 	void Update () {
-		
+		//test = result;
+		result = TouchAction();
+		//if (test == "None" && result == "Early" && IdealTime() == 0.25f) Time.timeScale = 0;
 	}
 	void FixedUpdate() {
-		/*string result = TouchAction();
-		if (result != "None") {
-			Debug.Log(result +": vec:"+ rigidbody2D.velocity);
-		}*/
+		//if (result != "None") {
+		//	Debug.Log(result +": now:"+ TimeTest.GetCurrentTime());
+		//}
 	}
 
 	//初期位置に戻す
@@ -64,18 +67,22 @@ public class Egg : MonoBehaviour {
 		Vector2 speed = rigidbody2D.velocity;
 		float idealTime = IdealTime();
 		float currentTime = TimeTest.GetCurrentTime();
+		float rate = 0.1f;
+		if (idealTime == 1.0f)  rate = 0.1f;
+		else if (idealTime == 0.5f)  rate = 0.15f;
+		else if (idealTime == 0.25f)  rate = 0.2f;
 		//if (currentTime < -0.5f + idealTime || currentTime > 0.5f - idealTime) return "None";
 		
-		if (currentTime >= - 0.2f + idealTime && currentTime <= 0.2f + idealTime) {
-			Debug.Log("Nice");
+		if (currentTime >= idealTime * (1 - rate) && currentTime <= idealTime * (1 + rate)) {
+			Debug.Log("Nice:" + currentTime +"  frame:" + Time.deltaTime);
 			return "Nice";
 		}
-		else if (currentTime >= 0.2f + idealTime && currentTime < 0.8f + idealTime) {
-			Debug.Log("Early");
+		else if (currentTime >= idealTime * (1 - rate * 2.0f) && currentTime < idealTime * (1 - rate)) {
+			Debug.Log("Early:" + currentTime +"  frame:" + Time.deltaTime);
 			return "Early";
 		}
-		else if (currentTime >= - 0.8f + idealTime && currentTime < - 0.2f + idealTime) {
-			Debug.Log("Late");
+		else if (currentTime >= idealTime * (1 + rate) && currentTime < idealTime * (1 + rate * 2.0f)) {
+			Debug.Log("Late:" + currentTime +"  frame:" + Time.deltaTime);
 			return "Late";
 		}
 		else  return "None";
@@ -151,6 +158,7 @@ public class Egg : MonoBehaviour {
 
   //ベストタイミング時の経過時間
   private float IdealTime() {
-  	return CreateStage.stages[StageManager.nowStageCount].interval;
+  	if (StageManager.IsFirstStageNumber())  return 1.0f;
+  	return CreateStage.stages[StageManager.PrevStageNumber()].interval;
   }
 }

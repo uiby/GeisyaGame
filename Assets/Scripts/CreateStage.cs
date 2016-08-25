@@ -31,6 +31,7 @@ public class CreateStage : MonoBehaviour {
 
 	void Start () {
 		stages = new List<Stage>();
+		firstObj = GameObject.Find("Tree/FirstTimingPoint");
 		timingPointLeft = (GameObject)Resources.Load("TimingPointLeft");
 		timingPointRight = (GameObject)Resources.Load("TimingPointRight");
 
@@ -101,16 +102,37 @@ public class CreateStage : MonoBehaviour {
 	///今のステージからどれくらい高いかを返り値として返す
 	private float GetNextY() {
 		float y = 0;
-		if (stages[stages.Count - 1].interval == 1.0f)  y = 4;
-		else if (stages[stages.Count - 1].interval == 0.5f)  y = 4;
-		else if (stages[stages.Count - 1].interval == 0.25f) y = 4;
+		if (stages[stages.Count - 1].interval == 1.0f)  y = 1;
+		else if (stages[stages.Count - 1].interval == 0.5f)  y = 1;
+		else if (stages[stages.Count - 1].interval == 0.25f) y = 1;
 		return y;
 	}
 
 	//次のステージのx座標を設定
 	private float GetNextX() {
-		if (isRight) return 3; //左側に配置の際は,x座標3
-		return 0;
+		/*float x = 0;
+    if (isRight) {
+		  if (stages[stages.Count - 1].interval == 1.0f)  x = 4;
+		  else if (stages[stages.Count - 1].interval == 0.5f)  x = 4;
+		  else if (stages[stages.Count - 1].interval == 0.25f) x = 4;
+		  return x;
+		}
+		if (stages[stages.Count - 1].interval == 1.0f)  x = 0;
+		else if (stages[stages.Count - 1].interval == 0.5f)  x = 0;
+		else if (stages[stages.Count - 1].interval == 0.25f) x = 0;
+		return x;*/
+
+    float x = 0;
+    if (isRight) {
+		  if (stages[stages.Count - 1].interval == 1.0f)  x = 4;
+		  else if (stages[stages.Count - 1].interval == 0.5f)  x = 3.5f;
+		  else if (stages[stages.Count - 1].interval == 0.25f) x = 3.0f;
+		  return x;
+		}
+		if (stages[stages.Count - 1].interval == 1.0f)  x = 0;
+		else if (stages[stages.Count - 1].interval == 0.5f)  x = 0.5f;
+		else if (stages[stages.Count - 1].interval == 0.25f) x = 1.0f;
+		return x;
 	}
 	//次のステージまでにかかる時間を設定
 	private float GetNextInterval() {
@@ -162,8 +184,12 @@ public class CreateStage : MonoBehaviour {
   //色指定
   private void SetColor() {
   	if (!IsFirstBard()) { 
-    	if (stages[stages.Count - 1].interval == 0.5f)  stages[stages.Count - 2].bard.transform.FindChild("Bard").GetComponent<Bard>().SetColor(0, 255, 65);
+    	if (stages[stages.Count - 1].interval == 0.5f)	stages[stages.Count - 2].bard.transform.FindChild("Bard").GetComponent<Bard>().SetColor(0, 255, 65);
 	  	else if (stages[stages.Count - 1].interval == 0.25f) stages[stages.Count - 2].bard.transform.FindChild("Bard").GetComponent<Bard>().SetColor(252, 24, 255);
+	  }
+	  else {
+    	if (stages[stages.Count - 1].interval == 0.5f)	firstObj.transform.FindChild("Bard").GetComponent<Bard>().SetColor(0, 255, 65);
+	  	else if (stages[stages.Count - 1].interval == 0.25f) firstObj.transform.FindChild("Bard").GetComponent<Bard>().SetColor(252, 24, 255);
 	  }
   }
 
