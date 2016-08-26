@@ -14,6 +14,10 @@ public class Bard : MonoBehaviour {
   public float correctionValue; //左右の補正値
 
   private float moveX;
+  private int lateState;
+  private float moveAmount; //移動量
+  private Vector2 latePos; //遅れた時の接触予定位置
+  private float lateRad;
 
   //鳥動作情報
   public enum eState {
@@ -24,6 +28,10 @@ public class Bard : MonoBehaviour {
   	Heading = 2,
   	//移動中
   	Moved = 3,
+  	//Early : 早い場合の動作
+  	Early = 4,
+  	//Late : 遅い場合の動作
+  	Late = 5,
   }
   public eState state = eState.None;
 	// Use this for initialization
@@ -43,10 +51,58 @@ public class Bard : MonoBehaviour {
 			  if (Mathf.Abs(moveX) <= 0.01f)  state = eState.None;
 			break;
 			case eState.Heading :
-			  angleAmount = maxAngle - maxAngle * 0.9f;
+			  interval -= 1;
+			  RollZ(maxAngle/5);
+			  if (interval <= 0)  state = eState.None;
+			  /*angleAmount = maxAngle - maxAngle * 0.9f;
 			  maxAngle *= 0.9f;
-			  Roll(angleAmount);
-			  if (Mathf.Abs(maxAngle) < 0.01f) state = eState.None;
+			  RollZ(angleAmount);
+			  if (Mathf.Abs(maxAngle) < 0.01f) state = eState.None;*/
+			  break;
+			case eState.Late :
+			  Vector2 pos1 = this.transform.position;
+			  switch (lateState) {
+			  	case 0: //離れる
+			  	  pos1.x -= Mathf.Cos(Mathf.Deg2Rad * 60) * 0.2f;
+	          pos1.y -= Mathf.Sin(Mathf.Deg2Rad * 60) * 0.2f;
+	          this.transform.position = pos1;
+	          
+	          moveAmount -= 1;
+	          if (moveAmount < 0) {
+	            moveAmount = 6;
+	            lateState = 1;
+	          }
+			  	break;
+			  	case 1: //振り返る
+  			  	moveAmount -= 1;
+  			  	RollY(180/6);
+  			  	if (moveAmount <= 0) {
+  			  		interval = 6;
+  			  		moveAmount = Vector2.Distance(this.transform.position, latePos);
+  			  		lateRad = GetAim(this.transform.position, latePos);
+  			  		lateState = 2;
+  			  	}
+			  	break;
+			  	case 2: //近づく
+			  	  pos1.x += Mathf.Cos(lateRad) * (moveAmount / 6);
+	          pos1.y += Mathf.Sin(lateRad) * (moveAmount / 6);
+	          this.transform.position = pos1;
+	          
+	          interval -= 1;
+	          if (interval <= 0) {
+	          	lateState = 0;
+	            state = eState.None;
+	          }
+			  	  /*pos1.x += Mathf.Cos(lateRad) * (moveAmount - moveAmount * 0.9f);
+	          pos1.y += Mathf.Sin(lateRad) * (moveAmount - moveAmount * 0.9f);
+	          this.transform.position = pos1;
+	          moveAmount *= 0.9f;
+	          if (moveAmount < 0.01f) {
+	            lateState = 0;
+	            state = eState.None;
+	          }*/
+			  	break;
+			  }
 			break;
 		}
 		/*switch (state) {
@@ -55,9 +111,8 @@ public class Bard : MonoBehaviour {
 			  timer -= interval;
    			//Debug.Log("ok:" + interval/maxAngle);
    			angleAmount = (interval/maxTimer) * maxAngle;
-			  if (timer >= 0)  Roll(-angleAmount);
+			  if (timer >= 0)  RollZ(-angleAmount);
 			break;
-			
 		}*/
 	}
 
@@ -79,6 +134,7 @@ public class Bard : MonoBehaviour {
 		/*	switch (state) {
 				case "" : break;
 			}*/
+		interval = 5;
 		if (IsMirror()) {
 			maxAngle = - maxHeadUpAngle;
 		}
@@ -117,7 +173,10 @@ public class Bard : MonoBehaviour {
 		maxTimer = time;
 	}
 
-	private void Roll(float amount) {
+	private void RollY(float amount) {
+		this.transform.Rotate(0, amount, 0);
+	}
+	private void RollZ(float amount) {
 		//if (IsMirror())
 			this.transform.Rotate(0, 0, amount);
 		//else this.transform.Rotate(0, 0, amount);
@@ -136,5 +195,48 @@ public class Bard : MonoBehaviour {
     c.g = g / 255;
     c.b = b / 255;
     this.GetComponent<SpriteRenderer>().color = c;
+  }
+
+  public void SetVelocity(float rad, float speed) {
+  	Debug.Log(" rad:"+ rad +" deg:" + rad * Mathf.Rad2Deg + " v0:" + speed);
+    Vector2 v;
+    v.x = Mathf.Cos(rad) * speed;
+    v.y = Mathf.Sin(rad) * speed;
+    this.GetComponent<Rigidbody2D>().velocity = v;
+  }
+  //重力可変移動
+  private void SetVelocity(float rad, float speed, float gravity) {
+  	//Debug.Log(" g:" + gravity + " rad:"+ rad +" deg:" + rad * Mathf.Rad2Deg + " v0:" + speed);
+  	float gravityScale = gravity / 9.81f;
+    Vector2 v;
+    v.x = Mathf.Cos(rad) * speed;
+    v.y = Mathf.Sin(rad) * speed;
+    this.GetComponent<Rigidbody2D>().gravityScale = gravityScale;
+    this.GetComponent<Rigidbody2D>().velocity = v;
+  }
+
+  //早かった時のアクション
+  public void EarlyAction(float[] parameter) {
+  	float gravity = parameter[0];
+  	float rad = parameter[1];
+  	float v0 = parameter[2];
+  	this.gameObject.AddComponent<Rigidbody2D>();
+  	SetVelocity(rad, v0, gravity);
+  }
+
+  //遅かった時のアクション
+  public void LateAction(Vector2 pos) {
+  	state = eState.Late;
+  	lateState = 0;
+  	moveAmount = 5;
+  	latePos = pos;
+  }
+
+  //2点間の角度をradで返す
+  private float GetAim(Vector2 start, Vector2 end) {
+    float dx = end.x - start.x;
+    float dy = end.y - start.y;
+    float rad = Mathf.Atan2(dy, dx);
+    return rad;
   }
 }

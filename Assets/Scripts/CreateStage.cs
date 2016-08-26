@@ -12,9 +12,12 @@ public class CreateStage : MonoBehaviour {
 		public float nextRad = 0; //次のステージに対する発射角度
 		public float nextSpeed = 0; //次のステージに対する初速度
 		public float nextGravity = 0; //次の重力
+		public bool isGoal = false; //goalかどうか
 	}
 	public GameObject firstObj; //最初のオブジェクト
+	public GameObject goal; //ゴール地点
 	public static List<Stage> stages;
+	public Stage firstStage;
 	private GameObject timingPointLeft;
 	private GameObject timingPointRight;
 	private bool isRight = true;
@@ -31,6 +34,7 @@ public class CreateStage : MonoBehaviour {
 
 	void Start () {
 		stages = new List<Stage>();
+		firstStage = new Stage();
 		firstObj = GameObject.Find("Tree/FirstTimingPoint");
 		timingPointLeft = (GameObject)Resources.Load("TimingPointLeft");
 		timingPointRight = (GameObject)Resources.Load("TimingPointRight");
@@ -60,6 +64,8 @@ public class CreateStage : MonoBehaviour {
       branch.transform.SetParent(GameObject.Find("Tree").transform);
       stages[i].bard = bard;
 		}
+
+		SetGoalStage();
 	}
 	
 	// Update is called once per frame
@@ -79,7 +85,7 @@ public class CreateStage : MonoBehaviour {
   	if (stages.Count != 1)   pos = stages[stages.Count - 2].bard.transform.position;
 		
 		pos.y += GetNextY();
-		pos.x = GetNextX();
+		pos.x += GetNextX();
 		//Debug.Log(pos.y);
 		SetParameter(pos, stages[stages.Count - 1].interval);
 		stages[stages.Count - 1].bard.transform.position = stages[stages.Count - 1].nextPos; //ステージの位置を画面に反映
@@ -89,6 +95,18 @@ public class CreateStage : MonoBehaviour {
 	//オブジェクト生成
 	private GameObject CreateObj(GameObject bard) {
 		return (GameObject)Instantiate(bard, new Vector2(0, 0), Quaternion.identity);
+	}
+
+	//ゴール地点の生成
+	private void SetGoalStage() {
+		Stage stage = new Stage();
+		stage.bard = goal;
+		//Destroy(stages[stages.Count - 1].bard.gameObject);
+		//stages[stages.Count - 1].bard = goal;
+		//stages.Add(stage); //ステージに追加
+    //stages[stages.Count - 1].bard.transform.position = stages[stages.Count - 1].nextPos;
+    goal.transform.position = stages[stages.Count - 1].nextPos;
+    stages[stages.Count - 1].isGoal = true;
 	}
 
 	//RandomBool
@@ -103,30 +121,18 @@ public class CreateStage : MonoBehaviour {
 	private float GetNextY() {
 		float y = 0;
 		if (stages[stages.Count - 1].interval == 1.0f)  y = 1;
-		else if (stages[stages.Count - 1].interval == 0.5f)  y = 1;
-		else if (stages[stages.Count - 1].interval == 0.25f) y = 1;
+		else if (stages[stages.Count - 1].interval == 0.5f)  y = 0.5f;
+		else if (stages[stages.Count - 1].interval == 0.25f) y = 0.25f;
 		return y;
 	}
 
 	//次のステージのx座標を設定
 	private float GetNextX() {
-		/*float x = 0;
+		float x = 0;
     if (isRight) {
 		  if (stages[stages.Count - 1].interval == 1.0f)  x = 4;
-		  else if (stages[stages.Count - 1].interval == 0.5f)  x = 4;
-		  else if (stages[stages.Count - 1].interval == 0.25f) x = 4;
-		  return x;
-		}
-		if (stages[stages.Count - 1].interval == 1.0f)  x = 0;
-		else if (stages[stages.Count - 1].interval == 0.5f)  x = 0;
-		else if (stages[stages.Count - 1].interval == 0.25f) x = 0;
-		return x;*/
-
-    float x = 0;
-    if (isRight) {
-		  if (stages[stages.Count - 1].interval == 1.0f)  x = 4;
-		  else if (stages[stages.Count - 1].interval == 0.5f)  x = 3.5f;
-		  else if (stages[stages.Count - 1].interval == 0.25f) x = 3.0f;
+		  else if (stages[stages.Count - 1].interval == 0.5f)  x = 2f;
+		  else if (stages[stages.Count - 1].interval == 0.25f) x = 1f;
 		  return x;
 		}
 		if (stages[stages.Count - 1].interval == 1.0f)  x = 0;
@@ -179,6 +185,33 @@ public class CreateStage : MonoBehaviour {
   	stages[stages.Count - 1].nextSpeed = v0;
   	stages[stages.Count - 1].nextPos = end;
   	stages[stages.Count - 1].nextGravity = gravity;
+  }
+  public void SetFirstBardParameter(float rad, float v0, float interval) {
+  	firstStage.nextSpeed = v0;
+  	firstStage.nextRad = rad;
+  	firstStage.interval = interval;
+  }
+
+  //最初の位置と頂点の位置とかかる時間から発射角度と初速度を計算
+  //返り値 : Vector2(発射角度(rad), 初速度)
+  public static float[] GetParameter(Vector2 start, Vector2 end, float time) {
+  	//float gravity = 9.81f;
+  	//float rad = (float)Mathf.Atan((end.y - start.y + (gravity * time * time / 2)) / (end.x - start.x));
+  	//float v0 = (end.x - start.x) / (Mathf.Cos(rad) * time);
+  	float gravity = 2 * (end.y - start.y) / (time * time);  //重力
+  	float rad = (float)Mathf.Atan(gravity * time * time / (end.x - start.x));
+  	float v0 = gravity * time / Mathf.Sin(rad);
+
+  	return new float[]{gravity, rad, v0};
+  }
+
+  //time秒後の位置を予測して返す
+  public static Vector2 PredictPosition(float vo, Vector2 nowPos, float rad, float time) {
+  	Vector2 predictPosition = new Vector2(0, 0);
+  	float gravity = 9.81f;
+  	predictPosition.x = nowPos.x + vo * Mathf.Cos(rad) * time;
+  	predictPosition.y = nowPos.y + vo * Mathf.Sin(rad) * time - gravity * time * time / 2;
+  	return predictPosition;
   }
 
   //色指定

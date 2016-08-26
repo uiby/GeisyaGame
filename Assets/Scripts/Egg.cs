@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 //卵処理
@@ -13,17 +14,31 @@ public class Egg : MonoBehaviour {
 	public float hp;
 	private string test;
 	private string result;
+	private bool isPresetJumpTimer; //ジャンプタイマーがセットされているかどうか
+	private float timer;
+	private float maxTimer;//タイマーの最大値
+	private float correctionValue; //補正移動量
 	// Use this for initialization
 	void Start () {
 		rigidbody2D = GetComponent<Rigidbody2D>();
 		Physics2D.gravity = new Vector2(0, -9.81f);
 		firstPos = this.transform.position;
+		isPresetJumpTimer = false;
 	}
 	
 	void Update () {
-		//test = result;
+		test = result;
 		result = TouchAction();
-		//if (test == "None" && result == "Early" && IdealTime() == 0.25f) Time.timeScale = 0;
+		//if (test == "Early" && result == "Nice" && IdealTime() == 0.25f) Time.timeScale = 0;
+	  //*/
+	  if (!isPresetJumpTimer) return ;
+		timer -= Time.deltaTime;
+		if (timer <= 0) {
+			isPresetJumpTimer = false;
+			SetVelocity(correctionValue, CreateStage.stages[StageManager.PrevStageNumber()].interval - maxTimer); //justmomentによって既に次のステージに移っているからprevStage
+      DamageEgg(20);
+			Debug.Log("Preset Jump : "+ (CreateStage.stages[StageManager.PrevStageNumber()].interval - maxTimer));
+		} 
 	}
 	void FixedUpdate() {
 		//if (result != "None") {
@@ -39,25 +54,7 @@ public class Egg : MonoBehaviour {
 		TimeTest.FinishTime();
 	}
 
-  //touchアクション 成功だとtrue
-	/*public bool TouchAction() {
-		Vector2 speed = rigidbody2D.velocity;
-		float timingVy = TimingVy();
-		if (speed.y < -1.0f + timingVy || speed.y > 1.0f - timingVy) return false;
-		
-		if (speed.y >= -0.2f + timingVy && speed.y <= 0.2f - timingVy) {
-			Debug.Log("Nice!");
-		}
-		else if (speed.y >= -0.5f + timingVy && speed.y <= 0.5f - timingVy) {
-			Debug.Log("Good!");
-		}
-		else if (speed.y >= -1.0f + timingVy && speed.y <= 1.0f - timingVy) {
-			Debug.Log("Ok!");
-		}
-
-		return true;
-	}*/
-	//touchアクション
+ 	//touchアクション
 	//返り値 : Nice ... 誤差±0.1
 	//        Early(早い) ... 誤差-0.5
 	//        Late(遅い) ... 誤差+0.5
@@ -73,15 +70,15 @@ public class Egg : MonoBehaviour {
 		else if (idealTime == 0.25f)  rate = 0.2f;
 		//if (currentTime < -0.5f + idealTime || currentTime > 0.5f - idealTime) return "None";
 		
-		if (currentTime >= idealTime * (1 - rate) && currentTime <= idealTime * (1 + rate)) {
+		if (currentTime >= idealTime * (1 - rate * 2 / 3) && currentTime <= idealTime * (1 + rate * 2 / 3)) {
 			Debug.Log("Nice:" + currentTime +"  frame:" + Time.deltaTime);
 			return "Nice";
 		}
-		else if (currentTime >= idealTime * (1 - rate * 2.0f) && currentTime < idealTime * (1 - rate)) {
+		else if (currentTime >= idealTime * (1 - rate * 2.0f) && currentTime < idealTime * (1 - rate * 2 / 3)) {
 			Debug.Log("Early:" + currentTime +"  frame:" + Time.deltaTime);
 			return "Early";
 		}
-		else if (currentTime >= idealTime * (1 + rate) && currentTime < idealTime * (1 + rate * 2.0f)) {
+		else if (currentTime >= idealTime * (1 + rate * 2 / 3) && currentTime < idealTime * (1 + rate * 2.0f)) {
 			Debug.Log("Late:" + currentTime +"  frame:" + Time.deltaTime);
 			return "Late";
 		}
@@ -108,13 +105,13 @@ public class Egg : MonoBehaviour {
 		//Debug.Log("pos:" + pos);
 		SetVelocity(pos, interval);
 	}
-	//移動
+	//Late Early 時の移動
 	// correction : 補正値
-	public void SetVelocity(float correction) {
-		Vector2 pos = CreateStage.stages[StageManager.nowStageCount].nextPos;
+	// interval : timer + interval = 本来の時間間隔　となるような値
+	public void SetVelocity(float correction, float interval) {
+		Vector2 pos = CreateStage.stages[StageManager.PrevStageNumber()].nextPos;
 		pos.x += correction;
-		CreateStage.stages[StageManager.nowStageCount].nextPos = pos;
-		float interval = CreateStage.stages[StageManager.nowStageCount].interval;
+		CreateStage.stages[StageManager.PrevStageNumber()].nextPos = pos;
 		SetVelocity(pos, interval);
 	}
 	
@@ -126,17 +123,6 @@ public class Egg : MonoBehaviour {
     v.x = Mathf.Cos(rad) * speed;
     v.y = Mathf.Sin(rad) * speed;
     rigidbody2D.velocity = v;
-  }
-
-  //タップにより位置がずれた時の補正
-  private void CompensatePosition() {
-  	Vector2 pos = new Vector2(0, 0);
-  	if (StageManager.nowStageCount == 0)  pos = GameObject.Find("StageManager").GetComponent<CreateStage>().firstObj.transform.position;
-  	else  {
-  		pos = CreateStage.stages[StageManager.nowStageCount - 1].bard.transform.position;
-  	  Debug.Log(CreateStage.stages[StageManager.nowStageCount - 1].bard.transform.position);
-  	}
-  	center.transform.position = pos;
   }
 
   //タマゴがタイミングタップされた後その都度計算して移動
@@ -153,6 +139,13 @@ public class Egg : MonoBehaviour {
   	//初速度
   	float v0 = (end.x - start.x) / (Mathf.Cos(rad) * time);
 
+  	if (StageManager.IsFirstStageNumber()) {
+  		GameObject.Find("StageManager").GetComponent<CreateStage>().SetFirstBardParameter(rad, v0, time);
+  	}
+  	else {
+  	  CreateStage.stages[StageManager.PrevStageNumber()].nextRad = rad; //発射角度を修正
+  	  CreateStage.stages[StageManager.PrevStageNumber()].nextSpeed = v0;//初速度を修正
+    }
   	SetVelocity(rad, v0, gravity);
   }
 
@@ -160,5 +153,43 @@ public class Egg : MonoBehaviour {
   private float IdealTime() {
   	if (StageManager.IsFirstStageNumber())  return 1.0f;
   	return CreateStage.stages[StageManager.PrevStageNumber()].interval;
+  }
+
+  //何秒後にジャンプさせることを前もって予約
+  // timer ... 予約時間
+  // correctionValue ... 移動補正
+  public void PresetJumpTimer(float time , float correction) {
+  	timer = time;
+  	maxTimer = time;
+  	correctionValue = correction;
+  	isPresetJumpTimer = true;
+  }
+
+  //タマゴのダメージ
+  private void DamageEgg(float value) {
+		GameObject.Find("MainCanvas/EggBar").GetComponent<EggBar>().Damage(value);
+		StartCoroutine(ChangeColorCoroutine());
+	}
+
+	 IEnumerator ChangeColorCoroutine() {
+	 	 int maxFrame = 4;
+	 	 bool isRad = true;
+	 	 while (maxFrame > 0) {
+	 	 	 maxFrame--;
+	 	 	 if (isRad)  SetColor (255, 0, 0); 
+	 	 	 else SetColor (255, 255, 255);
+	 	 	 isRad = !isRad;
+	 	 	 yield return null;
+	 	 }
+	 }
+
+	 /// 色設定.
+  public void SetColor (float r, float g, float b)
+  {
+    Color c = this.transform.FindChild("Egg").GetComponent<SpriteRenderer>().color;
+    c.r = r / 255;
+    c.g = g / 255;
+    c.b = b / 255;
+    this.transform.FindChild("Egg").GetComponent<SpriteRenderer>().color = c;
   }
 }
