@@ -18,6 +18,7 @@ public class Bard : MonoBehaviour {
   private float moveAmount; //移動量
   private Vector2 latePos; //遅れた時の接触予定位置
   private float lateRad;
+  private bool canDestroy; //もう使わないかどうか
 
   //鳥動作情報
   public enum eState {
@@ -32,6 +33,8 @@ public class Bard : MonoBehaviour {
   	Early = 4,
   	//Late : 遅い場合の動作
   	Late = 5,
+  	//VeryLate : とても遅い場合
+  	VeryLate = 6,
   }
   public eState state = eState.None;
 	// Use this for initialization
@@ -41,6 +44,9 @@ public class Bard : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		if (MainCamera.IsOutOfScreen(this.gameObject) == true && canDestroy) {
+			Destroy(this.gameObject);
+		}
 		switch (state) {
 			case eState.Moved :
 			  Vector2 pos = this.transform.position;
@@ -53,7 +59,10 @@ public class Bard : MonoBehaviour {
 			case eState.Heading :
 			  interval -= 1;
 			  RollZ(maxAngle/5);
-			  if (interval <= 0)  state = eState.None;
+			  if (interval <= 0)  {
+			  	state = eState.None;
+			  	canDestroy = true; //役目終了
+			  }
 			  /*angleAmount = maxAngle - maxAngle * 0.9f;
 			  maxAngle *= 0.9f;
 			  RollZ(angleAmount);
@@ -92,28 +101,23 @@ public class Bard : MonoBehaviour {
 	          if (interval <= 0) {
 	          	lateState = 0;
 	            state = eState.None;
+    			  	canDestroy = true; //役目終了
 	          }
-			  	  /*pos1.x += Mathf.Cos(lateRad) * (moveAmount - moveAmount * 0.9f);
-	          pos1.y += Mathf.Sin(lateRad) * (moveAmount - moveAmount * 0.9f);
-	          this.transform.position = pos1;
-	          moveAmount *= 0.9f;
-	          if (moveAmount < 0.01f) {
-	            lateState = 0;
-	            state = eState.None;
-	          }*/
 			  	break;
 			  }
 			break;
-		}
-		/*switch (state) {
-			case eState.Charge :
-			  interval = Time.deltaTime;
-			  timer -= interval;
-   			//Debug.Log("ok:" + interval/maxAngle);
-   			angleAmount = (interval/maxTimer) * maxAngle;
-			  if (timer >= 0)  RollZ(-angleAmount);
+			case eState.VeryLate :
+			  interval -= 1;
+			  RollY(180/10);
+			  if (interval <= 0) {
+  				float rad = 30 * Mathf.Deg2Rad;
+  	      float v0 = 2.0f;
+  	      this.gameObject.AddComponent<Rigidbody2D>();
+        	SetVelocity(rad, v0, 9.81f);
+        	state = eState.None;
+        }
 			break;
-		}*/
+		}
 	}
 
 	//誤差があった場合誤差に合わせて移動
@@ -215,6 +219,13 @@ public class Bard : MonoBehaviour {
     this.GetComponent<Rigidbody2D>().velocity = v;
   }
 
+  //ぶつかった時のエフェクト追加
+  public void PlayEffect(float r, float g, float b) {
+  	Color color = new Color(r/255, g/255, b/255);
+  	this.transform.parent.gameObject.GetComponent<ParticleSystem>().startColor = color;
+  	this.transform.parent.gameObject.GetComponent<ParticleSystem>().Play();
+  }
+
   //早かった時のアクション
   public void EarlyAction(float[] parameter) {
   	float gravity = parameter[0];
@@ -222,6 +233,7 @@ public class Bard : MonoBehaviour {
   	float v0 = parameter[2];
   	this.gameObject.AddComponent<Rigidbody2D>();
   	SetVelocity(rad, v0, gravity);
+  	canDestroy = true; //役目終了
   }
 
   //遅かった時のアクション
@@ -230,6 +242,18 @@ public class Bard : MonoBehaviour {
   	lateState = 0;
   	moveAmount = 5;
   	latePos = pos;
+  }
+
+  public void VeryEarlyAction() {
+  	float rad = 120 * Mathf.Deg2Rad;
+  	float v0 = 2.0f;
+  	this.gameObject.AddComponent<Rigidbody2D>();
+  	SetVelocity(rad, v0, 9.81f);
+  }
+
+  public void VeryLateAction() {
+  	state = eState.VeryLate;
+  	interval = 10;
   }
 
   //2点間の角度をradで返す

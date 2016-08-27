@@ -27,23 +27,25 @@ public class Egg : MonoBehaviour {
 	}
 	
 	void Update () {
-		test = result;
-		result = TouchAction();
+		//test = result;
+		//result = TouchAction();
 		//if (test == "Early" && result == "Nice" && IdealTime() == 0.25f) Time.timeScale = 0;
 	  //*/
+	  //ゲームオーバーかどうか判断
+	  if (GameManager.gameState != GameManager.GameState.Play)  return ;
+	  if (IsVeryLate()) {
+	  	GameObject.Find("GameManager").GetComponent<GameManager>().ChangeVeryLateAction();
+	  }
 	  if (!isPresetJumpTimer) return ;
 		timer -= Time.deltaTime;
 		if (timer <= 0) {
 			isPresetJumpTimer = false;
 			SetVelocity(correctionValue, CreateStage.stages[StageManager.PrevStageNumber()].interval - maxTimer); //justmomentによって既に次のステージに移っているからprevStage
-      DamageEgg(20);
-			Debug.Log("Preset Jump : "+ (CreateStage.stages[StageManager.PrevStageNumber()].interval - maxTimer));
-		} 
+      //DamageEgg(20);
+			//Debug.Log("Preset Jump : "+ (CreateStage.stages[StageManager.PrevStageNumber()].interval - maxTimer));
+		}
 	}
 	void FixedUpdate() {
-		//if (result != "None") {
-		//	Debug.Log(result +": now:"+ TimeTest.GetCurrentTime());
-		//}
 	}
 
 	//初期位置に戻す
@@ -68,21 +70,22 @@ public class Egg : MonoBehaviour {
 		if (idealTime == 1.0f)  rate = 0.1f;
 		else if (idealTime == 0.5f)  rate = 0.15f;
 		else if (idealTime == 0.25f)  rate = 0.2f;
-		//if (currentTime < -0.5f + idealTime || currentTime > 0.5f - idealTime) return "None";
 		
 		if (currentTime >= idealTime * (1 - rate * 2 / 3) && currentTime <= idealTime * (1 + rate * 2 / 3)) {
-			Debug.Log("Nice:" + currentTime +"  frame:" + Time.deltaTime);
+			//Debug.Log("Nice:" + currentTime +"  frame:" + Time.deltaTime);
 			return "Nice";
 		}
 		else if (currentTime >= idealTime * (1 - rate * 2.0f) && currentTime < idealTime * (1 - rate * 2 / 3)) {
-			Debug.Log("Early:" + currentTime +"  frame:" + Time.deltaTime);
+			//Debug.Log("Early:" + currentTime +"  frame:" + Time.deltaTime);
 			return "Early";
 		}
 		else if (currentTime >= idealTime * (1 + rate * 2 / 3) && currentTime < idealTime * (1 + rate * 2.0f)) {
-			Debug.Log("Late:" + currentTime +"  frame:" + Time.deltaTime);
+			//Debug.Log("Late:" + currentTime +"  frame:" + Time.deltaTime);
 			return "Late";
 		}
-		else  return "None";
+
+		if (currentTime < idealTime * (1 - rate * 2.0f))  return "VeryEarly";
+		else  return "VeryLate";
 
 
 	}
@@ -94,6 +97,15 @@ public class Egg : MonoBehaviour {
 			case FlickInfo.LeftUp :  //左
 			  break;
 		}
+	}
+
+	private bool IsVeryLate() {
+		float idealTime = IdealTime();
+		float rate = 0.1f;
+		if (idealTime == 0.5f)  rate = 0.15f;
+		else if (idealTime == 0.25f)  rate = 0.2f;
+		float judgeTime = idealTime * (1 + rate * 4.0f);
+		return TimeTest.IsVeryLate(judgeTime);
 	}
 
 	public void SetVelocity() {
@@ -191,5 +203,18 @@ public class Egg : MonoBehaviour {
     c.g = g / 255;
     c.b = b / 255;
     this.transform.FindChild("Egg").GetComponent<SpriteRenderer>().color = c;
+  }
+
+  //ぶつかった時のエフェクト追加
+  public void PlayEffect(float r, float g, float b) {
+  	ParticleSystem particle;
+  	Color color = new Color(r/255, g/255, b/255);
+  	particle = this.transform.FindChild("Egg").GetComponent<ParticleSystem>();
+  	particle.startColor = color;
+  	particle.Play();
+  }
+
+  public float GetSpeed() {
+  	return rigidbody2D.velocity.x;
   }
 }

@@ -7,79 +7,87 @@ public class GameManager : MonoBehaviour {
 	private bool isTap; //タップターゲット
 	public float correctionValue; //左右の補正値
 	public float presetJumpTimer; //事前のタイミングタイマー
+	public static GameState gameState;
 
 	void Start () {
 		isTap = false;
 		egg = GameObject.Find("Center").GetComponent<Egg>();
+		gameState = GameState.Play;
 	}
 	
 	void Update () {
-		TouchInfo info = TouchUtil.GetTouch();
-		switch(info) {
-			case TouchInfo.Began :
-			  if (!isTap) {
-			  	switch (egg.TouchAction()) {
-			    	case "Nice" : 
-  			    	egg.SetVelocity();
-			      	IdealBardAction();
-			      break;
-			  	  case "Early" :
-  			  	  EarlyBardAction();
-			  	    /*if (CreateStage.stages[StageManager.nowStageCount].bard.GetComponent<Bard>().IsMirror()) {
-			  	      egg.SetVelocity(correctionValue);
-			  	      SetMoveBardAction(correctionValue);
-			  	    }
-			  	    else {
-			  	    	  egg.SetVelocity(-correctionValue);
-			  	        SetMoveBardAction(-correctionValue);
-			  	    }
-			  	    JumpMoment();*/
-			  	  break;
-			  	  case "Late" :
-			  	    LateBardAction();
-			  	    /*if (CreateStage.stages[StageManager.nowStageCount].bard.GetComponent<Bard>().IsMirror()) {
-			  	      egg.SetVelocity(-correctionValue);
-			  	      SetMoveBardAction(-correctionValue);
-			  	    }
-			  	    else {
-			  	      egg.SetVelocity(correctionValue);
-			  	      SetMoveBardAction(correctionValue);
-			  	    }
-			  	    JumpMoment();*/
-			  	  break;
-			  	  case "None" : 
-			  	    isTap = true;
-			    	break;
-			    }
-			  } else {
-
-			  }
-
-			  /*if (egg.TouchAction() && !isTap) {
-			  	isTap = false;
-			  	BeforeJump();
-			  	egg.SetVelocity();
-			    JumpMoment();
-			  }
-			  else {
-			  	if (!isTap) 	SetIdealTimeAction();
-			  	isTap = true;
-			  }*/
-			  //TouchUtil.SetStartPosition();
-			  break;
-			case TouchInfo.Ended :
-			  //TouchUtil.SetEndPosition();
-			  //FlickAction();
-			  break;
-		}
 		if (Input.GetKeyDown(KeyCode.Q)) {
 			CreateStage.Init();
       SceneManager.LoadScene ("Main");
 		  //egg.initPos();
 		}
+
+		switch (gameState) {
+			case GameState.Play: Play(); break;
+			case GameState.GameOver: break;
+			case GameState.GameClear: break;
+		}
+		
 	}
 
+	private void Play() {
+		TouchInfo info = TouchUtil.GetTouch();
+		switch(info) {
+			case TouchInfo.Began :
+			  switch (egg.TouchAction()) {
+			  	case "Nice" : 
+			  	  if (!StageManager.IsFirstStageNumber()) {
+			  	    ShowTapResult("Nice", CreateStage.stages[StageManager.PrevStageNumber()].bard);
+    			  }
+  			  	egg.SetVelocity();
+			    	IdealBardAction();
+			    	if (IsClear()) {
+			    		GameClear();
+			    	}
+			    break;
+			    case "Early" :
+			    	ShowTapResult("Early", CreateStage.stages[StageManager.PrevStageNumber()].bard);
+  				  EarlyBardAction();
+			    	if (IsClear()) {
+			    		GameClear();
+			    	}
+			    break;
+			    case "Late" :
+			    	ShowTapResult("Late", CreateStage.stages[StageManager.PrevStageNumber()].bard);
+			      LateBardAction();
+			    	if (IsClear()) {
+			    		GameClear();
+			    	}
+			    break;
+			    case "VeryEarly" : 
+  			    VeryEarlyAction();
+			   	break;
+			  	case "VeryLate" :
+			  	  VeryLateAction();
+			  	break;
+			  }
+			  break;
+			case TouchInfo.Ended :
+			  break;
+		}
+	}
+
+	private bool IsClear() {
+		//Debug.Log(StageManager.nowStageCount);
+		if (StageManager.nowStageCount == CreateStage.stages.Count)
+		  return true;
+		return false;
+	}
 	
+	private void GameOver() {
+		Debug.Log("GameOver.");
+	}
+
+  private void GameClear() {
+  	Debug.Log("GameClear.");
+  	gameState = GameState.GameClear;
+  }
+
 	//earlyまたはlateの時の鳥のアクション
 	private void NearlyAction(string result) {
 		if (StageManager.IsFirstStageNumber())  return;
@@ -109,15 +117,7 @@ public class GameManager : MonoBehaviour {
 
 	//早いタイミング時のアクション
 	private void EarlyBardAction() {
-		if (CreateStage.stages[StageManager.nowStageCount].bard.GetComponent<Bard>().IsMirror()) {
-	    egg.PresetJumpTimer(presetJumpTimer/2 , correctionValue);
-		  SetMoveBardAction(correctionValue);
-		}
-		else {
-			egg.PresetJumpTimer(presetJumpTimer/2 , -correctionValue);
-		  SetMoveBardAction(-correctionValue);
-		}
-		//presetJumpTimer/2秒後の位置を予測してアクションを行う
+		egg.PresetJumpTimer(presetJumpTimer/2 , correctionValue);
 		
 		//最初のタイミングジャンプかどうか判断
 		Vector2 predictPosition;
@@ -145,15 +145,8 @@ public class GameManager : MonoBehaviour {
 
 	//遅いタイミング時のアクション
 	private void LateBardAction() {
-		if (CreateStage.stages[StageManager.nowStageCount].bard.GetComponent<Bard>().IsMirror()) {
-			egg.PresetJumpTimer(presetJumpTimer , -correctionValue);
-      SetMoveBardAction(-correctionValue);
-    }
-    else {
-    	egg.PresetJumpTimer(presetJumpTimer , correctionValue);
-		  SetMoveBardAction(correctionValue);
-    }
-		
+		egg.PresetJumpTimer(presetJumpTimer , -correctionValue);
+    
 		//最初のタイミングジャンプかどうか判断
 		Vector2 predictPosition;
 		if (StageManager.nowStageCount == 1) {
@@ -169,9 +162,31 @@ public class GameManager : MonoBehaviour {
 			CreateStage.stages[StageManager.PrevStageNumber()].nextRad,
 			presetJumpTimer);
 		}
-		Debug.Log("late pos:"+ predictPosition +"egg:" + GameObject.Find("Center").transform.position);
+		//Debug.Log("late pos:"+ predictPosition +"egg:" + GameObject.Find("Center").transform.position);
 		CreateStage.stages[StageManager.PrevStageNumber()].bard.GetComponent<Bard>().LateAction(predictPosition);
     JumpMoment();
+	}
+
+	private void VeryEarlyAction() {
+		gameState = GameState.GameOver;
+		GameObject.Find("GameOver").GetComponent<GameOver>().ShowGameOver();
+	  if (StageManager.IsFirstStageNumber())  return;
+		CreateStage.stages[StageManager.PrevStageNumber()].bard.GetComponent<Bard>().VeryEarlyAction();
+	}
+
+	//何もタップしなかった場合、自動的にgameoverの処理
+	public void ChangeVeryLateAction() {
+		gameState = GameState.GameOver;
+		GameObject.Find("GameOver").GetComponent<GameOver>().ShowGameOver();
+		if (StageManager.IsFirstStageNumber())  return;
+		CreateStage.stages[StageManager.PrevStageNumber()].bard.GetComponent<Bard>().VeryLateAction();
+	}
+
+	private void VeryLateAction() {
+		gameState = GameState.GameOver;
+		GameObject.Find("GameOver").GetComponent<GameOver>().ShowGameOver();
+		if (StageManager.IsFirstStageNumber())  return;
+		CreateStage.stages[StageManager.PrevStageNumber()].bard.GetComponent<Bard>().VeryLateAction();
 	}
 
   //鳥を移動状態に移行
@@ -192,4 +207,53 @@ public class GameManager : MonoBehaviour {
 	public static void Init() {
 
 	}
+
+	//Game情報
+  public enum GameState {
+	  //touchなし
+	  None = 99,
+	  //touch開始
+	  Play = 0,
+	  //touch移動
+	  GameOver = 1,
+	  //touch静止
+	  GameClear = 2,
+	  //touch終了
+  	//Start = 3,
+  }
+
+  //タップ結果を表示
+  //target : targetを中心に文字が回る
+  public static void ShowTapResult(string result, GameObject target) {
+  	GameObject word;
+  	GameObject temp;
+  	Vector2 pos = new Vector2(target.transform.position.x - 2, target.transform.position.y + 1);
+  	SE.CryBard(result);
+  	switch (result) {
+  		case "Early" :  
+  		  word = (GameObject)Resources.Load("UI/EarlyWord");
+  		  temp = (GameObject)Instantiate(word, pos, Quaternion.identity);
+  		  temp.GetComponent<TapResultWord>().PlayEffect(0, 241, 251);
+  		  ComboSystem.ResetCombo();
+  		break;
+  		case "Nice" :
+  		  word = (GameObject)Resources.Load("UI/NiceWord");  
+  		  temp = (GameObject)Instantiate(word, pos, Quaternion.identity);
+  		  temp.GetComponent<TapResultWord>().PlayEffect(0, 255, 20);
+  		  ComboSystem.AddCombo();
+  		break;
+  		case "Late" :  
+  		  word = (GameObject)Resources.Load("UI/LateWord");
+  		  temp = (GameObject)Instantiate(word, pos, Quaternion.identity);
+  		  temp.GetComponent<TapResultWord>().PlayEffect(251, 109, 0);
+  		  ComboSystem.ResetCombo();
+  		break;
+  	}
+    ScoreManager.AddScore(result);
+  }
+
+  public void Retry() {
+  	CreateStage.Init();
+    SceneManager.LoadScene ("Main");
+  }
 }

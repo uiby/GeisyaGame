@@ -36,4 +36,9 @@ public class TimeTest : MonoBehaviour {
   	return time;
   }
 
+  public static bool IsVeryLate(float judgeTime) {
+  	if (!isBegin) return false;
+  	if (time > judgeTime) return true;
+  	return false;
+  }
 }

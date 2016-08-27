@@ -101,11 +101,11 @@ public class CreateStage : MonoBehaviour {
 	private void SetGoalStage() {
 		Stage stage = new Stage();
 		stage.bard = goal;
-		//Destroy(stages[stages.Count - 1].bard.gameObject);
-		//stages[stages.Count - 1].bard = goal;
+		Destroy(stages[stages.Count - 1].bard.gameObject);
+		stages[stages.Count - 1].bard = goal;
 		//stages.Add(stage); //ステージに追加
-    //stages[stages.Count - 1].bard.transform.position = stages[stages.Count - 1].nextPos;
-    goal.transform.position = stages[stages.Count - 1].nextPos;
+    stages[stages.Count - 1].bard.transform.position = stages[stages.Count - 1].nextPos;
+    //goal.transform.position = stages[stages.Count - 1].nextPos;
     stages[stages.Count - 1].isGoal = true;
 	}
 
@@ -236,5 +236,4 @@ public class CreateStage : MonoBehaviour {
 
   	return false;
   }
-
 }
