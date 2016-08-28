@@ -23,9 +23,9 @@ public class ScoreManager : MonoBehaviour {
 	public static void AddScore(string result) {
 		int value = 0;
 		switch (result) {
-			case "Early" : value = (int)(50 * ComboSystem.GetRate()); break;
-			case "Nice" : value = (int)(100 * ComboSystem.GetRate()); break;
-			case "Late" : value = (int)(50 * ComboSystem.GetRate()); break;
+			case "Early" : value = 50; break;
+			case "Nice" : value = (int)(100 + ComboSystem.GetRate()); break;
+			case "Late" : value = 50; break;
 		}
 		score += value;
 		ShowScore();

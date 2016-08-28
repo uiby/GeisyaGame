@@ -14,10 +14,8 @@ public class TitleManager : MonoBehaviour {
 		nextX = 0;
 
 		Vector2 pos = content.GetComponent<RectTransform>().localPosition;
-		Debug.Log(pos);
 		pos.x = 400 - 400 * nowStagenumber;
 		content.GetComponent<RectTransform>().localPosition = pos;
-		Debug.Log(400 - 400 * nowStagenumber);
 		SetColor(221, 66, 255); //色を付ける
 	}
 	

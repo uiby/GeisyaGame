@@ -25,8 +25,8 @@ public class AddScore : MonoBehaviour {
 
 	public void SetValue(int value) {
 		int comboNum = ComboSystem.GetCombo();
-		if (comboNum < 5)	this.GetComponent<Text>().text = "+" + value;
-		if (comboNum >=5 && comboNum < 10)	this.GetComponent<Text>().text = "<color=magenta>+" + value + "</color>";
-		if (comboNum >=10)	this.GetComponent<Text>().text = "<color=aqua>+" + value + "</color>";
+		if (comboNum <= 1 )	this.GetComponent<Text>().text = "+" + value;
+		if (comboNum > 1 && comboNum <= 8)	this.GetComponent<Text>().text = "<color=magenta>+" + value + "</color>";
+		if (comboNum > 8)	this.GetComponent<Text>().text = "<color=aqua>+" + value + "</color>";
 	}
 }

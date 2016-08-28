@@ -10,6 +10,10 @@ public class GameClear : MonoBehaviour {
 	private int state; //簡易状態
 	public Text maxCombo;
 	public Text score;
+	public Text[] rankingText;
+	public Text[] anotherRankingText; //ランキングのスコア以外の文章
+	private int[] rankingScore;
+	private bool isNewRecord; //新しいスコアかどうか
 	// Use this for initialization
 	void Start () {
 		result = this.transform.FindChild("Result").GetComponent<Text>();
@@ -17,6 +21,9 @@ public class GameClear : MonoBehaviour {
 		result.text = "";
 		maxCombo.enabled = false;
 		score.enabled = false;
+		isNewRecord = false;
+		for (int i = 0; i < rankingText.Length; i++)  rankingText[i].enabled = false;
+		for (int i = 0; i < anotherRankingText.Length; i++)  anotherRankingText[i].enabled = false;
 	}
 	
 	// Update is called once per frame
@@ -40,17 +47,48 @@ public class GameClear : MonoBehaviour {
 			  if (frame == 0) score.enabled = true;
 			  if (frame < 0) {
 			  	state = 2;
+			  	frame = 40;
+			  	if (isNewRecord) {
+			  		Ranking.RenewalRank(rankingScore, ScoreManager.GetScore());
+			  		Debug.Log("ok:" + rankingScore);
+			  	}
+			  	rankingScore = Ranking.GetRanking();
+			  	SetRank();
 			  }
 			break;
-			case 2: 
-
+			case 2:
+			  frame--;
+			  if (frame == 20) anotherRankingText[0].enabled = true;
+			  if (frame == 15) {
+			  	anotherRankingText[1].enabled = true;
+			  	rankingText[0].enabled = true;
+			  }
+			  if (frame == 10) {
+			  	anotherRankingText[2].enabled = true;
+			  	rankingText[1].enabled = true;
+			  }
+			  if (frame == 5) {
+			  	anotherRankingText[3].enabled = true;
+			  	rankingText[2].enabled = true;
+			  }
+			  if (isNewRecord && frame == 0) {
+			    state = -1;
+			  }
 			break;
 		}
 	}
 
+	public void SetRank() {
+		for (int i = 0; i < rankingText.Length; i++)
+  		rankingText[i].text = "" + rankingScore[i];
+	}
+
 	public void ShowCanvas() {
 		maxCombo.text = "Max Combo : "+ ComboSystem.GetMaxCombo();
-		score.text = "Score : "+ ScoreManager.GetScore();
+		int record = ScoreManager.GetScore();
+		score.text = "Score : "+ record;
+		rankingScore = Ranking.GetRanking();
+		if (Ranking.CanChangeRank(rankingScore, record))  isNewRecord = true;
 		this.GetComponent<Canvas>().enabled = true;
 	}
 	public void HideCanvas() {
@@ -61,6 +99,9 @@ public class GameClear : MonoBehaviour {
 		state = 0;
 		maxCombo.enabled = false;
 		score.enabled = false;
+		isNewRecord = false;
+		for (int i = 0; i < rankingText.Length; i++)  rankingText[i].enabled = false;
+		for (int i = 0; i < anotherRankingText.Length; i++)  anotherRankingText[i].enabled = false;
 	}
 
 	private string GetWord(int num) {

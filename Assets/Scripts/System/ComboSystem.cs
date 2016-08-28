@@ -48,15 +48,16 @@ public class ComboSystem : MonoBehaviour {
 	}
 
 	public static float GetRate() {
-		float rate = 1.0f;
-		if (comboNum >= 2 && comboNum < 5)	rate = 1.3f;
+		float rate = 0;
+		/*if (comboNum >= 2 && comboNum < 5)	rate = 1.3f;
 		if (comboNum >=5 && comboNum < 10)  rate = 2.0f;
 		if (comboNum >=10) rate = 3.0f;
-		/*if (comboNum >= 2 && comboNum < 10) {
-			rate += comboNum / 10.0f - 0.1f;
-		} else {
-			rate = 2.0f;
-		}*/
+		*/
+		if (comboNum >= 2 && comboNum <= 8) {
+			rate += (comboNum - 1) * 20; //comboNum / 10.0f - 0.1f;
+		} else if (comboNum > 8) {
+			rate = 200;
+		}
 
 		return rate;
 	}
