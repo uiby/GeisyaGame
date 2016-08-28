@@ -15,7 +15,7 @@ public class Goal : MonoBehaviour {
 	}
 
 	public void PlayGoal() {
-  	GameObject.Find("GameClear").GetComponent<GameClear>().ShowGameClear();
+  	GameObject.Find("GameClear").GetComponent<GameClear>().ShowCanvas();
 		Debug.Log("Goal");
 	}
 

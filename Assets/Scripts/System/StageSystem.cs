@@ -20,6 +20,8 @@ public class StageSystem : MonoBehaviour {
 	protected static float Y(int type) {
 		float y = 1;
 		switch (type) {
+			case -2: y = -0.5f; break;
+			case -1: y = -0.25f; break;
 			case 0: y = 1; break;
 			case 1: y = 0.5f; break;
 			case 2: y = 0.25f; break;

@@ -19,18 +19,24 @@ public class ComboSystem : MonoBehaviour {
 	
 	}
 
+	public static void Init() {
+		comboNum = 0;
+		comboText.GetComponent<Text>().text = "";
+	}
+
   //コンボ数を1上げる
 	public static void AddCombo() {
 		comboNum++;
 		if (comboNum == 1)  return ;
 		ShowStr();
-		Debug.Log("combo:" + comboNum);
+		//Debug.Log("combo:" + comboNum);
 	}
 
 	//コンボの設定
 	public static void ResetCombo() {
 		comboNum = 0;
-		Debug.Log("combo:" + comboNum);
+		//Debug.Log("combo:" + comboNum);
+		comboText.GetComponent<Text>().text = "";
 	}
 
 	private static void ShowStr() {

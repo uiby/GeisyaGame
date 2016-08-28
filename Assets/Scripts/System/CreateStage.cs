@@ -7,7 +7,8 @@ public class CreateStage : MonoBehaviour {
 	//ステージ
 	public class Stage {
 		public Vector2 nextPos;
-		public GameObject bard;
+		public GameObject bard;  //鳥
+		public GameObject branch; //枝
 		public float interval = 0; //次のステージにかかる時間
 		public float nextRad = 0; //次のステージに対する発射角度
 		public float nextSpeed = 0; //次のステージに対する初速度
@@ -20,41 +21,47 @@ public class CreateStage : MonoBehaviour {
 	public Stage firstStage;
 	private GameObject timingPointLeft;
 	private GameObject timingPointRight;
-	private bool isRight = true;
 	public bool isRandom;
 	public bool isColorChange;
-	public int[] musicInterval; //間隔
-	public bool[] musicIsRightPos; //位置 右ならtrue, 左ならfalse
 	public float vy; //次のステージにタマゴが通る時のy軸の速度. 0なら頂点
 
-  ///後でちゃんとしたコードに書き直す///
-	private int musicIntervalCount = 0;
-	private int musiceIsRightPosCount = 0;
-	///**********************///
+	private List<int> x; //stage : x軸座標の集まり
+	private List<float> y; //stage : y軸座標の集まり
+	private int maxBardCount; //最大バード数
 
 	void Start () {
-		stages = new List<Stage>();
 		firstStage = new Stage();
 		firstObj = GameObject.Find("Tree/FirstTimingPoint");
 		timingPointLeft = (GameObject)Resources.Load("TimingPointLeft");
 		timingPointRight = (GameObject)Resources.Load("TimingPointRight");
-
-		int max = 20;
-		if (musicInterval.Length == musicIsRightPos.Length && musicInterval.Length != 0) max = musicInterval.Length;
-		if (isRandom) max = 20;
-		for (int count = 0; count < max; count++) {
-			isRight = RandomBool();
-			GameObject temp ;
-			if (isRight) temp = CreateObj(timingPointRight);
-			else temp = CreateObj(timingPointLeft);
-			
-			//ステージのパラメータ設定
-		  SetStage(temp);
-		  
-		  if (isColorChange)  SetColor();//色指定
+	}
+	
+	public void MakeStage() {
+		stages = new List<Stage>();
+		x = new List<int>();
+		y = new List<float>();
+		switch (GameManager.StageNumber) {
+			case 0:
+			  x.AddRange(Stage01.GetX());
+			  y.AddRange(Stage01.GetY());
+			  maxBardCount = Stage01.GetMaxBard();
+			break;
+			case 1:
+			  x.AddRange(Stage02.GetX());
+			  y.AddRange(Stage02.GetY());
+			  maxBardCount = Stage02.GetMaxBard();
+			break;
 		}
 
-		for (int i = 0; i < max; i++) {
+    SetFirstBard();
+		for (int i = 1; i < maxBardCount; i++) {
+			SetBard(i);
+
+		  if (isColorChange)  SetColor();//色指定
+
+		}
+
+		for (int i = 0; i < maxBardCount; i++) {
 			GameObject point = stages[i].bard;
 			GameObject bard = point.transform.FindChild("Bard").gameObject;
 			GameObject branch = point.transform.FindChild("Branch").gameObject;
@@ -63,35 +70,42 @@ public class CreateStage : MonoBehaviour {
       point.transform.SetParent(bard.transform);
       branch.transform.SetParent(GameObject.Find("Tree").transform);
       stages[i].bard = bard;
+      stages[i].branch = branch;
 		}
 
 		SetGoalStage();
 	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
-  
-  //ステージ生成
-  private void SetStage(GameObject temp) {
-		Stage stage = new Stage();
-		stage.bard = temp;
-		stages.Add(stage); //ステージに追加
-		stages[stages.Count - 1].interval = GetNextInterval();//時間の設定
 
-    //次のステージの位置の設定
+  //鳥の設置
+  private void SetFirstBard() {
+  	Stage stage = new Stage();
+		stage.bard = CreateObj(timingPointRight);
+		stages.Add(stage);
+		stages[stages.Count - 1].interval = GetNextInterval(0);//時間の設定
+
 		Vector2 pos = firstObj.transform.position; //今のステージ位置
-  	if (stages.Count != 1)   pos = stages[stages.Count - 2].bard.transform.position;
-		
-		pos.y += GetNextY();
-		pos.x += GetNextX();
-		//Debug.Log(pos.y);
-		SetParameter(pos, stages[stages.Count - 1].interval);
-		stages[stages.Count - 1].bard.transform.position = stages[stages.Count - 1].nextPos; //ステージの位置を画面に反映
+  	pos.x += x[0];
+  	pos.y += y[0];
+  	SetParameter(pos, stages[stages.Count - 1].interval);
+  	stages[stages.Count - 1].bard.transform.position = stages[stages.Count - 1].nextPos; //ステージの位置を画面に反映
 		stages[stages.Count - 1].bard.transform.SetParent(GameObject.Find("Tree").transform); //親の設定
-	}
 
+		SetColor();
+  }
+	private void SetBard(int count) {
+		Stage stage = new Stage();
+		stage.bard = CreateObj(timingPointRight);
+		stages.Add(stage);
+		stages[stages.Count - 1].interval = GetNextInterval(count);//時間の設定
+
+		Vector2 pos = stages[stages.Count - 2].bard.transform.position;
+  	pos.x += x[count];
+  	pos.y += y[count];
+  	SetParameter(pos, stages[stages.Count - 1].interval);
+  	stages[stages.Count - 1].bard.transform.position = stages[stages.Count - 1].nextPos; //ステージの位置を画面に反映
+		stages[stages.Count - 1].bard.transform.SetParent(GameObject.Find("Tree").transform); //親の設定
+  }
+  
 	//オブジェクト生成
 	private GameObject CreateObj(GameObject bard) {
 		return (GameObject)Instantiate(bard, new Vector2(0, 0), Quaternion.identity);
@@ -101,65 +115,30 @@ public class CreateStage : MonoBehaviour {
 	private void SetGoalStage() {
 		Stage stage = new Stage();
 		stage.bard = goal;
-		Destroy(stages[stages.Count - 1].bard.gameObject);
-		stages[stages.Count - 1].bard = goal;
+		stages.Add(stage);
+		//Destroy(stages[stages.Count - 1].bard.gameObject);
+		//stages[stages.Count - 1].bard = goal;
 		//stages.Add(stage); //ステージに追加
-    stages[stages.Count - 1].bard.transform.position = stages[stages.Count - 1].nextPos;
+		stages[stages.Count - 1].interval = 1.5f;
+		Vector2 pos = stages[stages.Count - 2].bard.transform.position;
+  	pos.x += 5.0f;
+  	pos.y += 0.0f;
+    SetParameter(pos, stages[stages.Count - 1].interval);
+  	stages[stages.Count - 1].bard.transform.position = stages[stages.Count - 1].nextPos; //ステージの位置を画面に反映
     //goal.transform.position = stages[stages.Count - 1].nextPos;
     stages[stages.Count - 1].isGoal = true;
 	}
 
-	//RandomBool
-	private bool RandomBool() {
-		if (musicIsRightPos.Length == 0 || isRandom) return Random.Range(0, 2) == 0;
-
-		return musicIsRightPos[musiceIsRightPosCount++];
-	}
-
-	//次のステージのy座標を設定
-	///今のステージからどれくらい高いかを返り値として返す
-	private float GetNextY() {
-		float y = 0;
-		if (stages[stages.Count - 1].interval == 1.0f)  y = 1;
-		else if (stages[stages.Count - 1].interval == 0.5f)  y = 0.5f;
-		else if (stages[stages.Count - 1].interval == 0.25f) y = 0.25f;
-		return y;
-	}
-
-	//次のステージのx座標を設定
-	private float GetNextX() {
-		float x = 0;
-    if (isRight) {
-		  if (stages[stages.Count - 1].interval == 1.0f)  x = 4;
-		  else if (stages[stages.Count - 1].interval == 0.5f)  x = 2f;
-		  else if (stages[stages.Count - 1].interval == 0.25f) x = 1f;
-		  return x;
-		}
-		if (stages[stages.Count - 1].interval == 1.0f)  x = 0;
-		else if (stages[stages.Count - 1].interval == 0.5f)  x = 0.5f;
-		else if (stages[stages.Count - 1].interval == 0.25f) x = 1.0f;
-		return x;
-	}
 	//次のステージまでにかかる時間を設定
-	private float GetNextInterval() {
+	private float GetNextInterval(int count) {
 		float time = 0;
-		if (musicInterval.Length == 0 || isRandom) {
-			switch (Random.Range(0, 3)) {
-				case 0: time = 1.0f; break;
-				case 1: time = 0.5f; break;
-				case 2: time = 0.25f; break;
-			}
-			return time;
+		switch (x[count]) {
+			case 4: time = 1.0f; break;
+			case 2: time = 0.5f; break;
+			case 1: time = 0.25f; break;
 		}
 
-		//Debug.Log(musicIntervalCount);
-    switch (musicInterval[musicIntervalCount++]) {
-    	case 1: time = 1.0f; break;
-    	case 2: time = 0.5f; break;
-    	case 3: time = 0.25f; break;
-    }
-
-    return time;
+		return time;
 	}
 
 	//パラメータ設定
@@ -227,8 +206,8 @@ public class CreateStage : MonoBehaviour {
   }
 
   public static void Init() {
-  	for(int i = 0; i < stages.Count; i++) {
-      Destroy(stages[i].bard.gameObject);
+  	for(int i = 0; i < stages.Count - 1; i++) {
+      Destroy(stages[i].branch.gameObject);
     }
   }
   private bool IsFirstBard() {

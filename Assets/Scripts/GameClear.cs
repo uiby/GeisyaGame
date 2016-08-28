@@ -23,8 +23,14 @@ public class GameClear : MonoBehaviour {
 		}
 	}
 
-	public void ShowGameClear() {
+	public void ShowCanvas() {
 		this.GetComponent<Canvas>().enabled = true;
+	}
+	public void HideCanvas() {
+		this.GetComponent<Canvas>().enabled = false;
+		result.text = "";
+		frame = 40;
+		wordNumber = 0;
 	}
 
 	private string GetWord(int num) {

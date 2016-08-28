@@ -8,11 +8,14 @@ public class GameManager : MonoBehaviour {
 	public float correctionValue; //左右の補正値
 	public float presetJumpTimer; //事前のタイミングタイマー
 	public static GameState gameState;
-
+	public static int StageNumber = 0; //ステージの種類
+	public TitleManager titleManager;
+	
 	void Start () {
 		isTap = false;
 		egg = GameObject.Find("Center").GetComponent<Egg>();
-		gameState = GameState.Play;
+		gameState = GameState.Title;
+		titleManager = GameObject.Find("TitleCanvas").GetComponent<TitleManager>();
 	}
 	
 	void Update () {
@@ -23,11 +26,16 @@ public class GameManager : MonoBehaviour {
 		}
 
 		switch (gameState) {
-			case GameState.Play: Play(); break;
+			case GameState.Title: Title(); break;
+      case GameState.Play: Play(); break;
 			case GameState.GameOver: break;
 			case GameState.GameClear: break;
 		}
 		
+	}
+
+	private void Title() {
+		titleManager.ChoseStage();
 	}
 
 	private void Play() {
@@ -169,7 +177,7 @@ public class GameManager : MonoBehaviour {
 
 	private void VeryEarlyAction() {
 		gameState = GameState.GameOver;
-		GameObject.Find("GameOver").GetComponent<GameOver>().ShowGameOver();
+		GameObject.Find("GameOver").GetComponent<GameOver>().ShowCanvas();
 	  if (StageManager.IsFirstStageNumber())  return;
 		CreateStage.stages[StageManager.PrevStageNumber()].bard.GetComponent<Bard>().VeryEarlyAction();
 	}
@@ -177,14 +185,14 @@ public class GameManager : MonoBehaviour {
 	//何もタップしなかった場合、自動的にgameoverの処理
 	public void ChangeVeryLateAction() {
 		gameState = GameState.GameOver;
-		GameObject.Find("GameOver").GetComponent<GameOver>().ShowGameOver();
+		GameObject.Find("GameOver").GetComponent<GameOver>().ShowCanvas();
 		if (StageManager.IsFirstStageNumber())  return;
 		CreateStage.stages[StageManager.PrevStageNumber()].bard.GetComponent<Bard>().VeryLateAction();
 	}
 
 	private void VeryLateAction() {
 		gameState = GameState.GameOver;
-		GameObject.Find("GameOver").GetComponent<GameOver>().ShowGameOver();
+		GameObject.Find("GameOver").GetComponent<GameOver>().ShowCanvas();
 		if (StageManager.IsFirstStageNumber())  return;
 		CreateStage.stages[StageManager.PrevStageNumber()].bard.GetComponent<Bard>().VeryLateAction();
 	}
@@ -210,16 +218,11 @@ public class GameManager : MonoBehaviour {
 
 	//Game情報
   public enum GameState {
-	  //touchなし
 	  None = 99,
-	  //touch開始
-	  Play = 0,
-	  //touch移動
-	  GameOver = 1,
-	  //touch静止
-	  GameClear = 2,
-	  //touch終了
-  	//Start = 3,
+	  Title = 0,
+	  Play = 1,
+	  GameOver = 2,
+	  GameClear = 3,
   }
 
   //タップ結果を表示
@@ -254,6 +257,17 @@ public class GameManager : MonoBehaviour {
 
   public void Retry() {
   	CreateStage.Init();
-    SceneManager.LoadScene ("Main");
+  	ComboSystem.Init();
+  	ScoreManager.Init();
+  	GameObject.Find("GameOver").GetComponent<GameOver>().HideCanvas();
+  	GameObject.Find("GameClear").GetComponent<GameClear>().HideCanvas();
+  	GameObject.Find("StageManager").GetComponent<CreateStage>().MakeStage();
+  	egg.InitPos();
+  	gameState = GameState.Play;
+    //SceneManager.LoadScene ("Main");
+  }
+  public void Home() {
+  	CreateStage.Init();
+    SceneManager.LoadScene ("Main");	
   }
 }

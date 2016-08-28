@@ -54,6 +54,10 @@ public static class TouchUtil {
   	FlickInfo flickInfo = FlickInfo.None;
 		float dx = TouchEndPositon.x - TouchStartPositon.x;
 		float dy = TouchEndPositon.y - TouchStartPositon.y;
+		if (Vector2.Distance(TouchEndPositon, TouchStartPositon) < 1.0f) {
+			flickInfo = FlickInfo.None;
+			return flickInfo;
+		}
 		float angle = Mathf.Atan2(dx, dy) * Mathf.Rad2Deg;
 		
 		if (angle > -22.5 && angle <= 22.5) flickInfo = FlickInfo.Up;
@@ -64,7 +68,7 @@ public static class TouchUtil {
 		else if (angle > -157.5 && angle <= -112.5) flickInfo = FlickInfo.LeftDown;
 		else if (angle > -112.5 && angle <= -67.5) flickInfo = FlickInfo.Left;
 		else if (angle > -67.5 && angle <= -22.5) flickInfo = FlickInfo.LeftUp;
-	  Debug.Log(flickInfo);
+	  //Debug.Log(flickInfo);
   
 		return flickInfo;
 	}

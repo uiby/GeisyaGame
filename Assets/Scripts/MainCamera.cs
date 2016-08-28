@@ -22,7 +22,7 @@ public class MainCamera : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if (GameManager.gameState == GameManager.GameState.GameOver)  return;
+		if (GameManager.gameState == GameManager.GameState.GameOver || GameManager.gameState == GameManager.GameState.Title)  return;
     Vector3 pos = GetPositon();
 		pos.y = egg.transform.position.y + 0.5f;
 		pos.z = -1;

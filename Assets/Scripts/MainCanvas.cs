@@ -22,4 +22,13 @@ public class MainCanvas : MonoBehaviour {
 	private static void SetString(GameObject obj, string word) {
 		obj.GetComponent<Text>().text = word;
 	}
+
+	public void ShowCanvas() {
+		this.GetComponent<Canvas>().enabled = true;
+	}
+
+	public void HideCanvas() {
+		this.GetComponent<Canvas>().enabled = false;
+	}
+
 }

@@ -31,11 +31,15 @@ public class Egg : MonoBehaviour {
 		//result = TouchAction();
 		//if (test == "Early" && result == "Nice" && IdealTime() == 0.25f) Time.timeScale = 0;
 	  //*/
-	  //ゲームオーバーかどうか判断
-	  if (GameManager.gameState != GameManager.GameState.Play)  return ;
-	  if (IsVeryLate()) {
-	  	GameObject.Find("GameManager").GetComponent<GameManager>().ChangeVeryLateAction();
+	  switch(GameManager.gameState) {
+	  	case GameManager.GameState.Play : 
+	  	  if (IsVeryLate()) {
+	  	    GameObject.Find("GameManager").GetComponent<GameManager>().ChangeVeryLateAction();
+	      }
+		    break;
+		  case GameManager.GameState.GameClear: break;
 	  }
+
 	  if (!isPresetJumpTimer) return ;
 		timer -= Time.deltaTime;
 		if (timer <= 0) {
@@ -49,7 +53,7 @@ public class Egg : MonoBehaviour {
 	}
 
 	//初期位置に戻す
-	public void initPos() {
+	public void InitPos() {
 		rigidbody2D.velocity = Vector2.zero;
 		transform.position = firstPos;
 		StageManager.nowStageCount = 0;

@@ -13,9 +13,9 @@ public class ScoreManager : MonoBehaviour {
 		scoreText = GameObject.Find("MainCanvas/ScoreNum");
 	}
 	
-	// Update is called once per frame
-	void Update () {
-	
+	public static void Init() {
+		score = 0;
+		scoreText.GetComponent<Text>().text ="";
 	}
 
 	public static void AddScore(string result) {
