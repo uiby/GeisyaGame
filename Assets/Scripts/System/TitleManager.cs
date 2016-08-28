@@ -4,15 +4,21 @@ using System.Collections;
 
 //タイトル処理
 public class TitleManager : MonoBehaviour {
-	private int nowStagenumber;
+	private static int nowStagenumber = 0;
 	public Image[] icon;
 	public GameObject content;
 	private float nextX;
 	private bool canMove;
 	void Start () {
-		nowStagenumber = 0;
 		canMove = false;
 		nextX = 0;
+
+		Vector2 pos = content.GetComponent<RectTransform>().localPosition;
+		Debug.Log(pos);
+		pos.x = 400 - 400 * nowStagenumber;
+		content.GetComponent<RectTransform>().localPosition = pos;
+		Debug.Log(400 - 400 * nowStagenumber);
+		SetColor(221, 66, 255); //色を付ける
 	}
 	
 	void Update () {
@@ -46,9 +52,9 @@ public class TitleManager : MonoBehaviour {
 			else if (TouchUtil.GetDirection() == FlickInfo.Left) {
 				MoveRight();
 			}
-			else if (TouchUtil.GetDirection() == FlickInfo.None) {
+			/*else if (TouchUtil.GetDirection() == FlickInfo.None) {
 				DecideStage();
-			}
+			}*/
 			break;
 		}
 	}
@@ -72,7 +78,7 @@ public class TitleManager : MonoBehaviour {
 		SetColor(221, 66, 255); //色を付ける
 	}
 
-	private void DecideStage() {
+	public void DecideStage() {
 		HideTitle();
 		GameManager.StageNumber = nowStagenumber;
 		GameObject.Find("MainCanvas").GetComponent<MainCanvas>().ShowCanvas();

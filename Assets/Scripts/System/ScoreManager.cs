@@ -6,11 +6,13 @@ using System.Collections;
 public class ScoreManager : MonoBehaviour {
 	private static int score;
 	private static GameObject scoreText;
-
+	private static GameObject addScore;
+	
 	// Use this for initialization
 	void Start () {
 		score = 0;
 		scoreText = GameObject.Find("MainCanvas/ScoreNum");
+		addScore = (GameObject)Resources.Load("UI/AddScore");
 	}
 	
 	public static void Init() {
@@ -19,15 +21,25 @@ public class ScoreManager : MonoBehaviour {
 	}
 
 	public static void AddScore(string result) {
+		int value = 0;
 		switch (result) {
-			case "Early" : score += (int)(50 * ComboSystem.GetRate()); break;
-			case "Nice" : score += (int)(100 * ComboSystem.GetRate()); break;
-			case "Late" : score += (int)(50 * ComboSystem.GetRate()); break;
+			case "Early" : value = (int)(50 * ComboSystem.GetRate()); break;
+			case "Nice" : value = (int)(100 * ComboSystem.GetRate()); break;
+			case "Late" : value = (int)(50 * ComboSystem.GetRate()); break;
 		}
+		score += value;
 		ShowScore();
+
+		GameObject temp = (GameObject)Instantiate(addScore, new Vector2(0, 0), Quaternion.identity);
+		temp.transform.SetParent(GameObject.Find("MainCanvas").transform);
+		temp.GetComponent<AddScore>().SetValue(value);
 	}
 
 	private static void ShowScore() {
 		scoreText.GetComponent<Text>().text = "" + score;
+	}
+
+	public static int GetScore() {
+		return score;
 	}
 }

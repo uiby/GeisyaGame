@@ -5,25 +5,52 @@ using System.Collections;
 //ゲームクリア―の処理
 public class GameClear : MonoBehaviour {
 	private Text result;
-	private int frame = 40;
+	private int frame = 33;
 	private int wordNumber = 0;
+	private int state; //簡易状態
+	public Text maxCombo;
+	public Text score;
 	// Use this for initialization
 	void Start () {
 		result = this.transform.FindChild("Result").GetComponent<Text>();
+		state = 0;
+		result.text = "";
+		maxCombo.enabled = false;
+		score.enabled = false;
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		if (!GetShowCanvas()) return;
-		if(frame < 0) return ;
-		frame--;
-		if (frame % 2 == 0) {
-			result.text += GetWord(wordNumber);
-			wordNumber++;
+		switch (state) {
+			case 0:
+			  frame--;
+		    if (frame % 3 == 0) {
+			    result.text += GetWord(wordNumber);
+			    wordNumber++;
+		    }
+		    if(frame < 0) {
+		    	frame = 20;
+		    	state = 1;
+		    }
+			break;
+			case 1: 
+			  frame--;
+			  if (frame == 10) maxCombo.enabled = true;
+			  if (frame == 0) score.enabled = true;
+			  if (frame < 0) {
+			  	state = 2;
+			  }
+			break;
+			case 2: 
+
+			break;
 		}
 	}
 
 	public void ShowCanvas() {
+		maxCombo.text = "Max Combo : "+ ComboSystem.GetMaxCombo();
+		score.text = "Score : "+ ScoreManager.GetScore();
 		this.GetComponent<Canvas>().enabled = true;
 	}
 	public void HideCanvas() {
@@ -31,6 +58,9 @@ public class GameClear : MonoBehaviour {
 		result.text = "";
 		frame = 40;
 		wordNumber = 0;
+		state = 0;
+		maxCombo.enabled = false;
+		score.enabled = false;
 	}
 
 	private string GetWord(int num) {
@@ -46,6 +76,7 @@ public class GameClear : MonoBehaviour {
 			case 7: word = "e"; break;
 			case 8: word = "a"; break;
 			case 9: word = "r"; break;
+			case 10: word = "!"; break;
 		}
   	return word;
 	}

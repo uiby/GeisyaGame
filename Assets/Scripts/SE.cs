@@ -17,15 +17,19 @@ public class SE : MonoBehaviour {
 	public static void CryBard(string result) {
 		switch (result) {
   		case "Early" : 
-  		  audioSource.pitch = 1.2f;
+  		  audioSource.pitch = 0.8f;
   			audioSource.PlayOneShot( earlySE );
 	    break;
   		case "Nice" :  
-  		  audioSource.pitch = 1;
+  		  float comboNum = ComboSystem.GetCombo();
+  		  if (comboNum <= 5)
+    		  audioSource.pitch = 1 + comboNum / 10.0f;
+    		else audioSource.pitch = 1.5f;
+
   			audioSource.PlayOneShot( niceSE );
 	    break;
   		case "Late" :  
-  		  audioSource.pitch = 1.2f;
+  		  audioSource.pitch = 0.8f;
   			audioSource.PlayOneShot( lateSE );
 	    break;
 	  }

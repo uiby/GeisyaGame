@@ -94,6 +94,7 @@ public class GameManager : MonoBehaviour {
   private void GameClear() {
   	Debug.Log("GameClear.");
   	gameState = GameState.GameClear;
+  	GameObject.Find("MainCanvas").GetComponent<MainCanvas>().HideCanvas();
   }
 
 	//earlyまたはlateの時の鳥のアクション
@@ -226,7 +227,7 @@ public class GameManager : MonoBehaviour {
   }
 
   //タップ結果を表示
-  //target : targetを中心に文字が回る
+  //target : targetの左上に文字が出現
   public static void ShowTapResult(string result, GameObject target) {
   	GameObject word;
   	GameObject temp;
@@ -260,6 +261,7 @@ public class GameManager : MonoBehaviour {
   	ComboSystem.Init();
   	ScoreManager.Init();
   	GameObject.Find("GameOver").GetComponent<GameOver>().HideCanvas();
+  	GameObject.Find("MainCanvas").GetComponent<MainCanvas>().ShowCanvas();
   	GameObject.Find("GameClear").GetComponent<GameClear>().HideCanvas();
   	GameObject.Find("StageManager").GetComponent<CreateStage>().MakeStage();
   	egg.InitPos();

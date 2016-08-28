@@ -2,7 +2,7 @@
 using System.Collections;
 
 public class TapResultWord : MonoBehaviour {
-	private float timer = 15;
+	private float timer = 10;
 	private GameObject target;
 	private ParticleSystem particle;
 	// Use this for initialization
