@@ -9,7 +9,9 @@ public class TitleManager : MonoBehaviour {
 	public GameObject content;
 	private float nextX;
 	private bool canMove;
+	public bool isAllDataClean;
 	void Start () {
+		if (isAllDataClean) PlayerPrefs.DeleteAll();
 		canMove = false;
 		nextX = 0;
 

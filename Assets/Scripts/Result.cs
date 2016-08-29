@@ -7,8 +7,8 @@ public class Result : MonoBehaviour {
 	public static Sprite[] GetSprite(int score) {
 		float parsent = (float)ScoreManager.GetScore() / MaxScore() * 100;
 		Debug.Log(ScoreManager.GetScore() + "%" + MaxScore() +"=" +parsent);
-		if (parsent > 50 && parsent <= 75)  return Resources.LoadAll<Sprite>("Sprite/pengin");
-		else if (parsent > 75)  return Resources.LoadAll<Sprite>("Sprite/tyira");
+		if (parsent > 33 && parsent <= 66)  return Resources.LoadAll<Sprite>("Sprite/pengin");
+		else if (parsent > 66)  return Resources.LoadAll<Sprite>("Sprite/tyira");
 		return Resources.LoadAll<Sprite>("Sprite/hiyoko");
 	}
 	public static int MaxScore() {
