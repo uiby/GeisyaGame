@@ -29,7 +29,7 @@ public class CreateStage : MonoBehaviour {
 
 	private List<int> x; //stage : x軸座標の集まり
 	private List<float> y; //stage : y軸座標の集まり
-	private int maxBardCount; //最大バード数
+	private static int maxBardCount; //最大バード数
 
 	void Start () {
 		firstStage = new Stage();
@@ -221,5 +221,9 @@ public class CreateStage : MonoBehaviour {
   	if (stages.Count == 1)  return true;
 
   	return false;
+  }
+
+  public static int GetMaxBard() {
+  	return maxBardCount;
   }
 }

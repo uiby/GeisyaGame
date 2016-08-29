@@ -221,4 +221,8 @@ public class Egg : MonoBehaviour {
   public float GetSpeed() {
   	return rigidbody2D.velocity.x;
   }
+
+  public void Roll(int z) {
+  	this.transform.Rotate(0, 0, z);
+  }
 }

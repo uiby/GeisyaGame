@@ -29,7 +29,7 @@ public class MainCamera : MonoBehaviour {
 		pos.x = egg.transform.position.x;
     movePos = pos - this.transform.position;
 		this.transform.position = pos;
-	}
+  }
 
 	private Vector3 GetPositon() {
 		return this.transform.position;

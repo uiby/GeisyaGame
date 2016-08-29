@@ -7,9 +7,11 @@ public class ScoreManager : MonoBehaviour {
 	private static int score;
 	private static GameObject scoreText;
 	private static GameObject addScore;
+	private static int niceCount;
 	
 	// Use this for initialization
 	void Start () {
+		niceCount = 0;
 		scoreText = GameObject.Find("MainCanvas/ScoreNum");
 		addScore = (GameObject)Resources.Load("UI/AddScore");
 		Init();
@@ -17,6 +19,7 @@ public class ScoreManager : MonoBehaviour {
 	
 	public static void Init() {
 		score = 0;
+		niceCount = 0;
 		scoreText.GetComponent<Text>().text ="";
 	}
 
@@ -24,7 +27,10 @@ public class ScoreManager : MonoBehaviour {
 		int value = 0;
 		switch (result) {
 			case "Early" : value = 50; break;
-			case "Nice" : value = (int)(100 + ComboSystem.GetRate()); break;
+			case "Nice" : 
+			value = (int)(100 + ComboSystem.GetRate());
+			niceCount++;
+			break;
 			case "Late" : value = 50; break;
 		}
 		score += value;
@@ -41,5 +47,8 @@ public class ScoreManager : MonoBehaviour {
 
 	public static int GetScore() {
 		return score;
+	}
+	public static int GetNiceCount() {
+		return niceCount;
 	}
 }
