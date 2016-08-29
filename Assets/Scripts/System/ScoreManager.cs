@@ -10,9 +10,9 @@ public class ScoreManager : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
-		score = 0;
 		scoreText = GameObject.Find("MainCanvas/ScoreNum");
 		addScore = (GameObject)Resources.Load("UI/AddScore");
+		Init();
 	}
 	
 	public static void Init() {

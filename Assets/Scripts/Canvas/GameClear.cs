@@ -49,10 +49,10 @@ public class GameClear : MonoBehaviour {
 			  	state = 2;
 			  	frame = 40;
 			  	if (isNewRecord) {
-			  		Ranking.RenewalRank(rankingScore, ScoreManager.GetScore());
+			  		Ranking.RenewalRank(rankingScore, ScoreManager.GetScore(), GameManager.StageNumber);
 			  		Debug.Log("ok:" + rankingScore);
 			  	}
-			  	rankingScore = Ranking.GetRanking();
+			  	rankingScore = Ranking.GetRanking(GameManager.StageNumber);
 			  	SetRank();
 			  }
 			break;
@@ -87,11 +87,12 @@ public class GameClear : MonoBehaviour {
 		maxCombo.text = "Max Combo : "+ ComboSystem.GetMaxCombo();
 		int record = ScoreManager.GetScore();
 		score.text = "Score : "+ record;
-		rankingScore = Ranking.GetRanking();
+		rankingScore = Ranking.GetRanking(GameManager.StageNumber);
 		if (Ranking.CanChangeRank(rankingScore, record))  isNewRecord = true;
 		this.GetComponent<Canvas>().enabled = true;
 	}
 	public void HideCanvas() {
+		
 		this.GetComponent<Canvas>().enabled = false;
 		result.text = "";
 		frame = 40;

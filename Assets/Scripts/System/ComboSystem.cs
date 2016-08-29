@@ -11,9 +11,8 @@ public class ComboSystem : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		maxCombo = 0;
-		comboNum = 0;
 		comboText = GameObject.Find("MainCanvas/ComboCount");
+		Init();
 	}
 	
 	// Update is called once per frame

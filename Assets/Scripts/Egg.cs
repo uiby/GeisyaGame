@@ -28,7 +28,7 @@ public class Egg : MonoBehaviour {
 	
 	void Update () {
 		//test = result;
-		//result = TouchAction();
+		result = TouchAction();
 		//if (test == "Early" && result == "Nice" && IdealTime() == 0.25f) Time.timeScale = 0;
 	  //*/
 	  switch(GameManager.gameState) {
@@ -71,9 +71,9 @@ public class Egg : MonoBehaviour {
 		float idealTime = IdealTime();
 		float currentTime = TimeTest.GetCurrentTime();
 		float rate = 0.1f;
-		if (idealTime == 1.0f)  rate = 0.1f;
-		else if (idealTime == 0.5f)  rate = 0.15f;
-		else if (idealTime == 0.25f)  rate = 0.2f;
+		if (idealTime == 1.0f)  rate = 0.06f;
+		else if (idealTime == 0.5f)  rate = 0.12f;
+		else if (idealTime == 0.25f)  rate = 0.24f;
 		
 		if (currentTime >= idealTime * (1 - rate * 2 / 3) && currentTime <= idealTime * (1 + rate * 2 / 3)) {
 			//Debug.Log("Nice:" + currentTime +"  frame:" + Time.deltaTime);

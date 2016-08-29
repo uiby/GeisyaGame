@@ -5,8 +5,10 @@ using System.Collections;
 //メインキャンバスの処理
 public class MainCanvas : MonoBehaviour {
 	private static GameObject timingResultText; //次のタイミングまでのゲージ
+	public Text[] hideText;
 	void Start () {
 		timingResultText = (GameObject)Resources.Load("UI/TimingResult");
+		HideCanvas();
 	}
 	
 	public static void ShowTimingResult(string resultWord) {
@@ -24,11 +26,17 @@ public class MainCanvas : MonoBehaviour {
 	}
 
 	public void ShowCanvas() {
-		this.GetComponent<Canvas>().enabled = true;
+		for (int i=0; i< hideText.Length;i ++) {
+			hideText[i].enabled = true;
+		}
+		//this.GetComponent<Canvas>().enabled = true;
 	}
 
 	public void HideCanvas() {
-		this.GetComponent<Canvas>().enabled = false;
+		for (int i=0; i< hideText.Length;i ++) {
+			hideText[i].enabled = false;
+		}
+		//this.GetComponent<Canvas>().enabled = false;
 	}
 
 }

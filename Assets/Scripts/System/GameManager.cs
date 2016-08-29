@@ -178,7 +178,7 @@ public class GameManager : MonoBehaviour {
 
 	private void VeryEarlyAction() {
 		gameState = GameState.GameOver;
-		GameObject.Find("GameOver").GetComponent<GameOver>().ShowCanvas();
+		GameObject.Find("GameOver").GetComponent<GameOver>().ShowCanvas("Too early.");
 	  if (StageManager.IsFirstStageNumber())  return;
 		CreateStage.stages[StageManager.PrevStageNumber()].bard.GetComponent<Bard>().VeryEarlyAction();
 	}
@@ -186,14 +186,14 @@ public class GameManager : MonoBehaviour {
 	//何もタップしなかった場合、自動的にgameoverの処理
 	public void ChangeVeryLateAction() {
 		gameState = GameState.GameOver;
-		GameObject.Find("GameOver").GetComponent<GameOver>().ShowCanvas();
+		GameObject.Find("GameOver").GetComponent<GameOver>().ShowCanvas("Try to tap.");
 		if (StageManager.IsFirstStageNumber())  return;
 		CreateStage.stages[StageManager.PrevStageNumber()].bard.GetComponent<Bard>().VeryLateAction();
 	}
 
 	private void VeryLateAction() {
 		gameState = GameState.GameOver;
-		GameObject.Find("GameOver").GetComponent<GameOver>().ShowCanvas();
+		GameObject.Find("GameOver").GetComponent<GameOver>().ShowCanvas("Too late.");
 		if (StageManager.IsFirstStageNumber())  return;
 		CreateStage.stages[StageManager.PrevStageNumber()].bard.GetComponent<Bard>().VeryLateAction();
 	}
@@ -235,24 +235,31 @@ public class GameManager : MonoBehaviour {
   	SE.CryBard(result);
   	switch (result) {
   		case "Early" :  
-  		  word = (GameObject)Resources.Load("UI/EarlyWord");
-  		  temp = (GameObject)Instantiate(word, pos, Quaternion.identity);
-  		  temp.GetComponent<TapResultWord>().PlayEffect(0, 241, 251);
   		  ComboSystem.ResetCombo();
+  		  word = (GameObject)Resources.Load("UI/TapResultWord");
+  		  temp = (GameObject)Instantiate(word, pos, Quaternion.identity);
+  		  temp.GetComponent<TapResultWord>().SetFirstPos(pos);
+  		  temp.GetComponent<TapResultWord>().SetString(result);
+  		  temp.GetComponent<TapResultWord>().PlayEffect(0, 241, 251);
   		break;
   		case "Nice" :
-  		  word = (GameObject)Resources.Load("UI/NiceWord");  
-  		  temp = (GameObject)Instantiate(word, pos, Quaternion.identity);
-  		  temp.GetComponent<TapResultWord>().PlayEffect(0, 255, 20);
   		  ComboSystem.AddCombo();
-  		break;
-  		case "Late" :  
-  		  word = (GameObject)Resources.Load("UI/LateWord");
+  		  word = (GameObject)Resources.Load("UI/TapResultWord");
   		  temp = (GameObject)Instantiate(word, pos, Quaternion.identity);
+  		  temp.GetComponent<TapResultWord>().SetFirstPos(pos);
+  		  temp.GetComponent<TapResultWord>().SetString(result);
   		  temp.GetComponent<TapResultWord>().PlayEffect(251, 109, 0);
+  		break;
+  		case "Late" : 
   		  ComboSystem.ResetCombo();
+  		  word = (GameObject)Resources.Load("UI/TapResultWord");
+  		  temp = (GameObject)Instantiate(word, pos, Quaternion.identity);
+  		  temp.GetComponent<TapResultWord>().SetFirstPos(pos);
+  		  temp.GetComponent<TapResultWord>().SetString(result);
+  		  temp.GetComponent<TapResultWord>().PlayEffect(0, 241, 251);
   		break;
   	}
+
     ScoreManager.AddScore(result);
   }
 

@@ -52,6 +52,11 @@ public class CreateStage : MonoBehaviour {
 			  x.AddRange(Stage02.GetX());
 			  y.AddRange(Stage02.GetY());
 			  maxBardCount = Stage02.GetMaxBard();
+		  break;
+			case 2:
+			  x.AddRange(Stage03.GetX());
+			  y.AddRange(Stage03.GetY());
+			  maxBardCount = Stage03.GetMaxBard();
 			break;
 		}
 

@@ -8,28 +8,35 @@ public class GameOver : MonoBehaviour {
 	private int wordNumber = 0;
 	public Image[] image;
 	public Text[] text;
+	public Text sentence; //一言
 	// Use this for initialization
 	void Start () {
 		result = this.transform.FindChild("GameOver").GetComponent<Text>();
+		result.text = "";
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		if (!GetShowCanvas()) return;
-		if(frame < -5) return ;
+		if(frame < -15) return ;
 		frame--;
 		if (frame >= 0) {
 	  	if (frame % 3 == 0) {
 	  		result.text += GetWord(wordNumber);
 	  		wordNumber++;
 	  	}
-	  } else if (frame == -5) {
+	  } else if (frame == -10) {
+	  	frame--;
+	  	sentence.enabled = true;
+		} else if (frame == -15) {
 			frame--;
 			ShowAnother();
 		}
 	}
 
-	public void ShowCanvas() {
+  
+	public void ShowCanvas(string cause) {
+		sentence.text = cause;
 		this.GetComponent<Canvas>().enabled = true;
 	}
 
@@ -42,6 +49,7 @@ public class GameOver : MonoBehaviour {
 		}
 		frame = 36;
 		wordNumber = 0;	
+		sentence.enabled = false;
 	}
 
 	private void ShowAnother() {
