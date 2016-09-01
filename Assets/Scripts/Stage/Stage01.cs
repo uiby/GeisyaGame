@@ -9,20 +9,20 @@ public class Stage01 : StageSystem {
 	}
 
 	public static int[] GetX() {
-		int[] x = new int[]{X(0), X(1), X(1), X(1), X(1), X(1), X(1), X(0),
-			                  X(1), X(1), X(1), X(1), X(1), X(1), X(0),
-			                  X(0), X(0), X(0), X(0), 
-			                  X(2), X(2), X(2), X(2), X(2), X(2), X(2), X(2), 
-			                  X(1), X(1), X(0)};
+		int[] x = new int[]{X(4), X(2), X(2), X(2), X(2), X(2), X(2), X(4),
+			                  X(2), X(2), X(2), X(2), X(2), X(2), X(4),
+			                  X(4), X(4), X(4), X(4), 
+			                  X(1), X(1), X(1), X(1), X(1), X(1), X(1), X(1), 
+			                  X(2), X(2), X(4)};
 		return x;
 	}
 
 	public static float[] GetY() {
-		float[] y = new float[]{Y(0), Y(1), Y(1), Y(1), Y(1), Y(1), Y(1), Y(0),
-			                      Y(1), Y(1), Y(1), Y(1), Y(1), Y(1), Y(0),
-			                      Y(0), Y(0), Y(0), Y(0), 
-			                      Y(2), Y(2), Y(2), Y(2), Y(2), Y(2), Y(2), Y(2), 
-			                      Y(1), Y(1), Y(0)};
+		float[] y = new float[]{Y(4), Y(2), Y(2), Y(2), Y(2), Y(2), Y(2), Y(4),
+			                      Y(2), Y(2), Y(2), Y(2), Y(2), Y(2), Y(4),
+			                      Y(4), Y(4), Y(4), Y(4), 
+			                      Y(1), Y(1), Y(1), Y(1), Y(1), Y(1), Y(1), Y(1), 
+			                      Y(2), Y(2), Y(4)};
 		return y;
 	}
 

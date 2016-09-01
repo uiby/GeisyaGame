@@ -4,15 +4,15 @@ using UnityEngine.SceneManagement;
 //ゲーム全体に関する処理
 public class GameManager : MonoBehaviour {
 	private Egg egg;//タマゴ
-	private bool isTap; //タップターゲット
 	public float correctionValue; //左右の補正値
 	public float presetJumpTimer; //事前のタイミングタイマー
 	public static GameState gameState;
 	public static int StageNumber = 0; //ステージの種類
+	public static float difficulty = 1; //難易度 1...普通　1.2f...難しい(少し早い)
 	public TitleManager titleManager;
 	
 	void Start () {
-		isTap = false;
+		Time.timeScale = difficulty; //unity全体の時間を変える
 		egg = GameObject.Find("Center").GetComponent<Egg>();
 		gameState = GameState.Title;
 		titleManager = GameObject.Find("TitleCanvas").GetComponent<TitleManager>();
@@ -111,7 +111,6 @@ public class GameManager : MonoBehaviour {
 	//ジャンプの瞬間
 	private void JumpMoment() {
 		//GameObject.Find("se").GetComponent<SE>().SEPlay();
-		//SetNextBardAction();
 		StageManager.AddNextStageCount();
 		//StageManager.CreateTimingGauge();
 		TimeTest.FinishTime();
@@ -198,15 +197,6 @@ public class GameManager : MonoBehaviour {
 		CreateStage.stages[StageManager.PrevStageNumber()].bard.GetComponent<Bard>().VeryLateAction();
 	}
 
-  //鳥を移動状態に移行
-  private void SetMoveBardAction(float correction) {
-  	CreateStage.stages[StageManager.nowStageCount].bard.GetComponent<Bard>().SetMove(correction);
-  }
-  //鳥のアクション（溜める)を設定
-	private void SetNextBardAction() {
-		//次の鳥を溜める状態に移行
-		CreateStage.stages[StageManager.nowStageCount].bard.GetComponent<Bard>().SetCharge(CreateStage.stages[StageManager.nowStageCount].interval);
-	}
 	//今の鳥のアクションを頭突き状態に移行
 	private void SetIdealTimeAction() {
 		if (StageManager.IsFirstStageNumber())  return;
@@ -273,7 +263,6 @@ public class GameManager : MonoBehaviour {
   	GameObject.Find("StageManager").GetComponent<CreateStage>().MakeStage();
   	egg.InitPos();
   	gameState = GameState.Play;
-    //SceneManager.LoadScene ("Main");
   }
   public void Home() {
   	CreateStage.Init();

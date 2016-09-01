@@ -122,7 +122,6 @@ public class GameClear : MonoBehaviour {
 			  	frame = 40;
 			  	if (isNewRecord) {
 			  		Ranking.RenewalRank(rankingScore, ScoreManager.GetScore(), GameManager.StageNumber);
-			  		Debug.Log("ok:" + rankingScore);
 			  	}
 			  	rankingScore = Ranking.GetRanking(GameManager.StageNumber);
 			  	SetRank();

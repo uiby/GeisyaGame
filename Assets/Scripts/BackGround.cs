@@ -4,13 +4,13 @@ using System.Collections;
 //背景
 public class BackGround : MonoBehaviour {
 	private MainCamera mainCamera;
-	private Renderer renderer;
+	private Renderer _renderer;
 	private GameObject obj_camera = null;
   private Vector3 offset = Vector3.zero;
 // Use this for initialization
 	void Start () {
 		mainCamera = GameObject.Find("MainCamera").GetComponent<MainCamera>();
-		renderer = this.GetComponent<Renderer>();
+		_renderer = this.GetComponent<Renderer>();
     obj_camera = GameObject.FindGameObjectWithTag("MainCamera");
     offset = transform.position - obj_camera.transform.position;
 	}
@@ -28,7 +28,7 @@ public class BackGround : MonoBehaviour {
 		}
 	  float scroll = Mathf.Repeat (Time.time * speed, 1);		// 時間によってYの値が0から1に変化していく.1になったら0に戻り繰り返す.
 	  Vector2 offset = new Vector2 (scroll, 0);				// Xの値がずれていくオフセットを作成.
-    renderer.sharedMaterial.SetTextureOffset ("_MainTex", offset);	// マテリアルにオフセットを設定する.
+    _renderer.sharedMaterial.SetTextureOffset ("_MainTex", offset);	// マテリアルにオフセットを設定する.
 
   }
 
@@ -55,6 +55,6 @@ public class BackGround : MonoBehaviour {
 	void Update () {
     float y = Mathf.Repeat (Time.time * speed, 1);
 	  Vector2 offset = new Vector2 (0,y);
-	  renderer.sharedMaterial.SetTextureOffset ("_MainTex", offset);
+	  _renderer.sharedMaterial.SetTextureOffset ("_MainTex", offset);
   }*/
   }

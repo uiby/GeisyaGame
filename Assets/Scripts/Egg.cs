@@ -4,7 +4,7 @@ using System.Collections;
 
 //卵処理
 public class Egg : MonoBehaviour {
-	private Rigidbody2D rigidbody2D;
+	private Rigidbody2D _rigidbody2D;
 	public float jumpSpeed;
 	public float jumpDiff;//左右にジャンプする時の垂直jumpからの差分
 	public float leftAndRightjumpSpeed;//左右jumpの速さ
@@ -20,7 +20,7 @@ public class Egg : MonoBehaviour {
 	private float correctionValue; //補正移動量
 	// Use this for initialization
 	void Start () {
-		rigidbody2D = GetComponent<Rigidbody2D>();
+		_rigidbody2D = GetComponent<Rigidbody2D>();
 		Physics2D.gravity = new Vector2(0, -9.81f);
 		firstPos = this.transform.position;
 		isPresetJumpTimer = false;
@@ -54,7 +54,7 @@ public class Egg : MonoBehaviour {
 
 	//初期位置に戻す
 	public void InitPos() {
-		rigidbody2D.velocity = Vector2.zero;
+		_rigidbody2D.velocity = Vector2.zero;
 		transform.position = firstPos;
 		StageManager.nowStageCount = 0;
 		TimeTest.FinishTime();
@@ -67,7 +67,6 @@ public class Egg : MonoBehaviour {
 	//        None(論外) ... ±0.5より大きい
 	public string TouchAction() {
 		if (StageManager.IsFirstStageNumber()) return "Nice";
-		Vector2 speed = rigidbody2D.velocity;
 		float idealTime = IdealTime();
 		float currentTime = TimeTest.GetCurrentTime();
 		float rate = 0.1f;
@@ -113,9 +112,6 @@ public class Egg : MonoBehaviour {
 	}
 
 	public void SetVelocity() {
-		float rad = CreateStage.stages[StageManager.nowStageCount].nextRad;
-		float speed = CreateStage.stages[StageManager.nowStageCount].nextSpeed;
-		float gravity = CreateStage.stages[StageManager.nowStageCount].nextGravity;
 		Vector2 pos = CreateStage.stages[StageManager.nowStageCount].nextPos;
 		float interval = CreateStage.stages[StageManager.nowStageCount].interval;
 		//Debug.Log("pos:" + pos);
@@ -138,7 +134,7 @@ public class Egg : MonoBehaviour {
     Vector2 v;
     v.x = Mathf.Cos(rad) * speed;
     v.y = Mathf.Sin(rad) * speed;
-    rigidbody2D.velocity = v;
+    _rigidbody2D.velocity = v;
   }
 
   //タマゴがタイミングタップされた後その都度計算して移動
@@ -219,7 +215,7 @@ public class Egg : MonoBehaviour {
   }
 
   public float GetSpeed() {
-  	return rigidbody2D.velocity.x;
+  	return _rigidbody2D.velocity.x;
   }
 
   public void Roll(int z) {

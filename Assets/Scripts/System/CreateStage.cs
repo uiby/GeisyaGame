@@ -20,12 +20,12 @@ public class CreateStage : MonoBehaviour {
 	public GameObject goal; //ゴール地点
 	public static List<Stage> stages;
 	public Stage firstStage;
-	private GameObject timingPointLeft;
 	private GameObject timingPointRight;
 	public bool isRandom;
 	public bool isColorChange;
 	public float vy; //次のステージにタマゴが通る時のy軸の速度. 0なら頂点
 	public Sprite blueBard;
+	public Sprite purpleBard;
 
 	private List<int> x; //stage : x軸座標の集まり
 	private List<float> y; //stage : y軸座標の集まり
@@ -34,7 +34,6 @@ public class CreateStage : MonoBehaviour {
 	void Start () {
 		firstStage = new Stage();
 		firstObj = GameObject.Find("Tree/FirstTimingPoint");
-		timingPointLeft = (GameObject)Resources.Load("TimingPointLeft");
 		timingPointRight = (GameObject)Resources.Load("TimingPointRight");
 	}
 	
@@ -141,6 +140,7 @@ public class CreateStage : MonoBehaviour {
 		float time = 0;
 		switch (x[count]) {
 			case 4: time = 1.0f; break;
+			case 3: time = 0.75f; break; 
 			case 2: time = 0.5f; break;
 			case 1: time = 0.25f; break;
 		}
@@ -203,10 +203,12 @@ public class CreateStage : MonoBehaviour {
   //色指定
   private void SetColor() {
   	if (!IsFirstBard()) { 
-    	if (stages[stages.Count - 1].interval == 0.5f)	stages[stages.Count - 2].bard.transform.FindChild("Bard").GetComponent<SpriteRenderer>().sprite = blueBard;
+  		if (stages[stages.Count - 1].interval == 0.75f) stages[stages.Count - 2].bard.transform.FindChild("Bard").GetComponent<SpriteRenderer>().sprite = purpleBard;
+    	else if (stages[stages.Count - 1].interval == 0.5f)	stages[stages.Count - 2].bard.transform.FindChild("Bard").GetComponent<SpriteRenderer>().sprite = blueBard;
 	  	else if (stages[stages.Count - 1].interval == 0.25f) stages[stages.Count - 2].bard.transform.FindChild("Bard").GetComponent<Bard>().SetColor(252, 24, 255);
 	  }
 	  else {
+  		if (stages[stages.Count - 1].interval == 0.75f) firstObj.transform.FindChild("Bard").GetComponent<SpriteRenderer>().sprite = purpleBard;
     	if (stages[stages.Count - 1].interval == 0.5f)	firstObj.transform.FindChild("Bard").GetComponent<SpriteRenderer>().sprite = blueBard;
 	  	else if (stages[stages.Count - 1].interval == 0.25f) firstObj.transform.FindChild("Bard").GetComponent<Bard>().SetColor(252, 24, 255);
 	  }

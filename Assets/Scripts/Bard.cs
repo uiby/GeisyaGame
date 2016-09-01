@@ -3,17 +3,13 @@ using System.Collections;
 
 //鳥の処理
 public class Bard : MonoBehaviour {
-	private float timer = 0;
-	private float maxTimer;
-  private float nextBardTimer;
+	private float nextBardTimer;
   private Vector3 rotate;
   private float maxAngle; //最大回転角度(z軸に対する)
   private float interval;//フレーム間の時間
   private float angleAmount; //フレーム間の角度
   public float maxHeadUpAngle;
-  public float correctionValue; //左右の補正値
 
-  private float moveX;
   private int lateState;
   private float moveAmount; //移動量
   private Vector2 latePos; //遅れた時の接触予定位置
@@ -23,12 +19,8 @@ public class Bard : MonoBehaviour {
   //鳥動作情報
   public enum eState {
   	None = 99, //通常状態
-  	//力を溜める
-  	Charge = 1,
   	//頭突き中
   	Heading = 2,
-  	//移動中
-  	Moved = 3,
   	//Early : 早い場合の動作
   	Early = 4,
   	//Late : 遅い場合の動作
@@ -48,14 +40,6 @@ public class Bard : MonoBehaviour {
 			Destroy(this.gameObject);
 		}
 		switch (state) {
-			case eState.Moved :
-			  Vector2 pos = this.transform.position;
-			  float add = moveX - moveX * 0.9f;
-			  moveX *= 0.9f;
-			  pos.x += add;
-			  this.transform.position = pos;
-			  if (Mathf.Abs(moveX) <= 0.01f)  state = eState.None;
-			break;
 			case eState.Heading :
 			  interval -= 1;
 			  RollZ(maxAngle/5);
@@ -120,19 +104,6 @@ public class Bard : MonoBehaviour {
 		}
 	}
 
-	//誤差があった場合誤差に合わせて移動
-	public void SetMove(float addX) {
-		moveX = addX;
-		state = eState.Moved;
-	}
-
-	//チャージ状態に移行 : time...インターバル
-	public void SetCharge(float time) {
-		SetInterval(time);
-		nextBardTimer = time;
-		maxAngle = 30;
-		state = eState.Charge;
-	}
 	//頭突き状態に移行
 	public void SetHeading() {
 		/*	switch (state) {
@@ -169,12 +140,6 @@ public class Bard : MonoBehaviour {
 
 	private void SetAnimatorTrigger(string name) {
 		this.GetComponent<Animator>().SetTrigger(name);
-	}
-
-	//インターバルの設定
-	private void SetInterval(float time) {
-		timer = time;
-		maxTimer = time;
 	}
 
 	private void RollY(float amount) {

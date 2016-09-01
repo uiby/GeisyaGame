@@ -10,6 +10,7 @@ public class TitleManager : MonoBehaviour {
 	private float nextX;
 	private bool canMove;
 	public bool isAllDataClean;
+	public Text difficultyText;
 	void Start () {
 		if (isAllDataClean) PlayerPrefs.DeleteAll();
 		canMove = false;
@@ -19,6 +20,7 @@ public class TitleManager : MonoBehaviour {
 		pos.x = -400 * nowStagenumber;
 		content.GetComponent<RectTransform>().localPosition = pos;
 		SetColor(221, 66, 255); //色を付ける
+		SetDifficulty();
 	}
 	
 	void Update () {
@@ -79,20 +81,60 @@ public class TitleManager : MonoBehaviour {
 	}
 
 	public void DecideStage() {
-		HideTitle();
-		GameManager.StageNumber = nowStagenumber;
-		GameObject.Find("MainCanvas").GetComponent<MainCanvas>().ShowCanvas();
-		GameObject.Find("StageManager").GetComponent<CreateStage>().MakeStage();
-		GameManager.gameState = GameManager.GameState.Play;
+		StartGame();
+		//SE.DesicionPlay();
 	}
 
 	/// 色設定.
-  private void SetColor (float r, float g, float b)
-  {
+  private void SetColor (float r, float g, float b) {
     Color c = icon[nowStagenumber].GetComponent<Image>().color;
     c.r = r / 255;
     c.g = g / 255;
     c.b = b / 255;
     icon[nowStagenumber].GetComponent<Image>().color = c;
+  }
+
+  public void ChoiseIcon(int stageCount) {
+  	if (stageCount == nowStagenumber) return ;
+  	SetColor(255, 255, 255); //白色に戻す
+  	nextX += (nowStagenumber - stageCount) * 400;
+  	nowStagenumber = stageCount;
+  	SetColor(221, 66, 255); //色を付ける
+  	canMove = true;
+  }
+
+  private void StartGame() {
+  	ScreenFadeManager fadeManager = ScreenFadeManager.Instance;
+  	GameManager.gameState = GameManager.GameState.None; //フェードインフェードアウトするため、一旦操作不能状態にする
+  	SE.DesicionPlay();
+		fadeManager.FadeOut(1.0f, Color.white, ()=> {// フェードイン
+			HideTitle();
+		  GameManager.StageNumber = nowStagenumber;
+		  GameObject.Find("MainCanvas").GetComponent<MainCanvas>().ShowCanvas();
+	  	GameObject.Find("StageManager").GetComponent<CreateStage>().MakeStage();
+    	GameManager.gameState = GameManager.GameState.Play;
+			fadeManager.FadeIn(1.0f, Color.white, ()=> {
+    	});
+			//Application.LoadLevel("Main");
+		});
+	}
+
+	private void SetDifficulty() {
+		if (GameManager.difficulty == 1) {
+			difficultyText.text = "Normal";
+		} else {
+			difficultyText.text = "Hard";
+		}
+	}
+
+	public void ChangeDifficulty() {
+		if (GameManager.difficulty == 1) {
+			GameManager.difficulty = 1.2f;
+			difficultyText.text = "Hard";
+		} else {
+			GameManager.difficulty = 1;
+			difficultyText.text = "Normal";
+		}
+		Time.timeScale = GameManager.difficulty;
   }
 }
